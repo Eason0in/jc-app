@@ -1,0 +1,37 @@
+{
+  "name": "calculate-building",
+  "version": "0.0.1",
+  "main": "./main/main.js",
+  "author": "Eason",
+  "license": "MIT",
+  "description": "calculate building",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "publish": "electron-builder --win -p always"
+  },
+  "devDependencies": {
+    "electron": "^19.0.4",
+    "electron-builder": "^23.0.3"
+  },
+  "dependencies": {
+    "electron-is-dev": "^2.0.0",
+    "electron-updater": "^5.0.1",
+    "exceljs": "^4.3.0"
+  },
+  "build": {
+    "appId": "com.calculate-building",
+    "win": {
+      "target": "nsis",
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "Eason0in",
+          "repo": "CalculateBuilding"
+        }
+      ]
+    },
+    "icon": "256x256.png"
+  }
+}
