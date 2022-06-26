@@ -1,6 +1,6 @@
 {
   "name": "calculate-building",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./main/main.js",
   "author": "Eason",
   "license": "MIT",
