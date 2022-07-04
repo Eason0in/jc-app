@@ -169,6 +169,7 @@ const numMap = (() => {
 const obj = {
   雙: 2,
   三: 3,
+  單: 1,
 }
 
 const rowInit = {

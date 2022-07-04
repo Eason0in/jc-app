@@ -32,14 +32,15 @@ module.exports = async (e, filePath) => {
       for (let i = s; i < s + l; i++) {
         const row = ws.getRow(i)
         row.eachCell({ includeEmpty: false }, function (cell, colNumber) {
-          const first = cell.value ? typeof cell.value === 'string' && cell.value.toUpperCase() : undefined
+          const resultOrValue = cell.result || cell.value // 代號可能是直接英文或組成的
+          const first = resultOrValue ? typeof resultOrValue === 'string' && resultOrValue.toUpperCase() : undefined
           const condF = first && numMap.has(first)
 
           let second = ''
           let condS = false
           // 馬椅 第二個條件要判斷分解後的 lenB lenA
           if (first === 'ID') {
-            second = row.getCell(colNumber + 1).value
+            second = row.getCell(colNumber + 1).result
             const [lenB, lenA] = second.split('X')
             condS = second && lenB && lenA
           } else {
@@ -65,7 +66,7 @@ module.exports = async (e, filePath) => {
 
             const key = `${obj.num}_${first}_${second}`
             if (AandACandCCMap.has(first)) {
-              const isNeedRemark = i === 32 // 讀到 32 腰筋搭接 備註加 腰筋
+              const isNeedRemark = i === 33 // 讀到 33 腰筋搭接 備註加 腰筋
               if (isNeedRemark) obj.remark = '腰筋'
 
               // AC 有長度C 讀統計 sheet line 9 對應 #X
@@ -93,7 +94,7 @@ module.exports = async (e, filePath) => {
                 carObj[key] = obj
               }
             } else if (first === 'ID') {
-              // 馬椅另外處理 因為它屬於彎料但又不在 line 28-32
+              // 馬椅另外處理 因為它屬於彎料但又不在 line 29-33
               const [lenB, lenA] = second.split('X')
               obj.lenB = lenB
               obj.lenA = lenA
@@ -140,24 +141,27 @@ module.exports = async (e, filePath) => {
       const countRow = ws.getRow(count)
       const countArr = []
       countRow.eachCell({ includeEmpty: false }, function (cell, colNumber) {
-        if (cell.result !== '箍筋數量' && cell.result) {
+        if (cell.result !== '箍筋數量' && cell.result !== undefined) {
           countArr.push(cell.result)
+          const nextCell = countRow.getCell(colNumber + 1)
+          // 判斷第一個是否為整數字，還有下一個是否沒值，要補 "單"
+          if (Number.isInteger(cell.result) && nextCell.result === undefined) {
+            countArr.push('單')
+          }
         }
       })
       let sum = 0
-      // 用6位去取，如果下一位是雙/三 自己要+2/3 次
+      // 判斷下一位是單/雙/三 自己要+1/2/3 次
       for (let j = 0; j < countArr.length; j++) {
-        if (obj[countArr[j + 1]]) {
-          for (let z = 1; z <= obj[countArr[j + 1]]; z++) {
-            sum += countArr[j]
-          }
-        } else if (obj[countArr[j]]) {
-          sum += 0
-        } else {
+        const unit = obj[countArr[j + 1]]
+        for (let z = 1; z <= unit; z++) {
           sum += countArr[j]
         }
-        if (!((j + 1) % 6)) {
-          arr[(j + 1) / 6 - 1].push(sum)
+
+        // 如果蒐集滿10個5組 就把 count 加到該 arr，並將 sum 歸零
+        if (Number.isInteger((j + 1) / 10)) {
+          // 5小組 數字+單/雙/三
+          arr[(j + 1) / 10 - 1].push(sum)
           sum = 0
         }
       }
@@ -180,7 +184,7 @@ module.exports = async (e, filePath) => {
           obj[key] = { num, tNo, lenB, lenA, count, tLen }
         }
         return obj
-      }, {})
+      }, stirrupsObj)
 
       const stirrupHatObj = hatArr.reduce((obj, [num, tNo, lenB, lenA, count, lenC]) => {
         const key = `${num}_${lenB}`
@@ -193,23 +197,23 @@ module.exports = async (e, filePath) => {
         }
 
         return obj
-      }, {})
+      }, stirrupsObj)
 
       // 要先將自己 (stirrupsObj) 放進去 因為馬椅可能已經先存進去了
-      stirrupsObj = { ...stirrupsObj, ...stirrupObj, ...stirrupHatObj }
+      stirrupsObj = { ...stirrupObj, ...stirrupHatObj }
     }
 
     //#region 將資料塞到 aObj carObj stirrupsObj
     const handleSheet = () => {
-      // 除了箍筋之外的鋼筋 讀20~27 + 32~42
+      // 除了箍筋之外的鋼筋 讀20~28 + 33~43
       const otherBarrangeArr = [
-        { s: 20, l: 8 },
-        { s: 32, l: 11 },
+        { s: 20, l: 9 },
+        { s: 33, l: 11 },
       ]
       otherBarrangeArr.forEach(handleBars)
 
-      // 箍筋 讀 28~31 行
-      const stirrupsRangeArr = [28, 31]
+      // 箍筋 讀 29~32 行
+      const stirrupsRangeArr = [29, 32]
       handleStirrups(stirrupsRangeArr)
     }
     //#endregion
