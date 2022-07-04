@@ -1,3 +1,4 @@
+const { numMap } = require('./data')
 const createOuterBorder = (worksheet, start = { row: 1, col: 1 }, end = { row: 1, col: 1 }, borderWidth = 'medium') => {
   const borderStyle = {
     style: borderWidth,
@@ -92,4 +93,23 @@ const getSumRow = (dataArr) => {
   return reusltObj
 }
 
-module.exports = { createOuterBorder, cellCenterStyle, getStatsObj, handleStringSum, getSumRow }
+/**
+ * 排序方式  程式先從第三順序開始排
+  1: 組編號 直料->彎料 tNo
+  2: 號數 由大到小 num
+  3: 總長度 長到短 tLen
+ * @param {array} objFillTLenArr 
+ */
+const handleSort = (objFillTLenArr) => {
+  const orderList = [
+    (pre, next) => next.tLen - pre.tLen,
+    (pre, next) => (next.num > pre.num ? 1 : -1),
+    (pre, next) => (numMap.get(next.tNo) > numMap.get(pre.tNo) ? 1 : -1),
+  ]
+  for (const fun of orderList) {
+    objFillTLenArr.sort(fun)
+  }
+  return objFillTLenArr
+}
+
+module.exports = { createOuterBorder, cellCenterStyle, getStatsObj, handleStringSum, getSumRow, handleSort }

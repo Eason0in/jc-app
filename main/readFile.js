@@ -3,7 +3,14 @@ const path = require('path')
 const Excel = require('exceljs')
 
 const { numMap, obj, rowInit, sheetNameObj, carTeethHasLenA, carTeethMap, COF, AandACandCCMap } = require('../src/data')
-const { createOuterBorder, cellCenterStyle, getStatsObj, handleStringSum, getSumRow } = require('../src/util')
+const {
+  createOuterBorder,
+  cellCenterStyle,
+  getStatsObj,
+  handleStringSum,
+  getSumRow,
+  handleSort,
+} = require('../src/util')
 
 module.exports = async (e, filePath) => {
   try {
@@ -220,10 +227,15 @@ module.exports = async (e, filePath) => {
 
     const tidyA = () => {
       const { a } = sheetObj
-      Object.values(aObj).forEach((value, i) => {
-        const { num, tNo, lenB, count, remark = '', lenC = '', lenA = '' } = value
+      const aObjFillTLenArr = Object.values(aObj).map((value) => {
+        const { num, lenB, count, lenC = '', lenA = '' } = value
         const tLen = handleStringSum(lenB, lenA, lenC) || 0
         const weight = Math.round(COF[num] * count * tLen)
+        return { ...value, tLen, weight }
+      })
+
+      handleSort(aObjFillTLenArr).forEach((value, i) => {
+        const { num, tNo, lenB, count, remark = '', lenC = '', lenA = '', tLen, weight } = value
         a.push(
           { ...rowInit, lenB: lenB },
           {
@@ -244,10 +256,16 @@ module.exports = async (e, filePath) => {
     }
     const tidyCar = () => {
       const { car } = sheetObj
-      Object.values(carObj).forEach((value, i) => {
+      const carObjFillTLenArr = Object.values(carObj).map((value) => {
         const { num, tNo, lenB, count, lenA } = value
         const tLen = handleStringSum(lenB, lenA, carTeethMap.get(tNo)) || 0
         const weight = Math.round(COF[num] * count * tLen)
+        return { ...value, tLen, weight }
+      })
+
+      handleSort(carObjFillTLenArr).forEach((value, i) => {
+        const { num, tNo, lenB, count, lenA, tLen, weight } = value
+
         car.push(
           { ...rowInit, lenB },
           {
@@ -269,9 +287,13 @@ module.exports = async (e, filePath) => {
 
     const tidyStirrups = () => {
       const { stirrups } = sheetObj
-      Object.values(stirrupsObj).forEach((value, i) => {
-        const { num, tNo, lenB, lenA, count, lenC, tLen } = value
+      const stirrupsObjFillTLenArr = Object.values(stirrupsObj).map((value) => {
+        const { num, tLen, count } = value
         const weight = Math.round(COF[num] * count * tLen)
+        return { ...value, weight }
+      })
+      handleSort(stirrupsObjFillTLenArr).forEach((value, i) => {
+        const { num, tNo, lenB, lenA, count, lenC, tLen, weight } = value
         stirrups.push(
           { ...rowInit, lenB: lenB },
           {
