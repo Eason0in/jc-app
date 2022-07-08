@@ -147,8 +147,8 @@ const carTeethMap = new Map([
 ])
 
 const carTeethHasLenA = ['CD', 'CE', 'FC']
-const AandACandCCMap = new Map([
-  ['A', '直料'],
+const AMap = new Map([['A', '直料']])
+const ACandCCMap = new Map([
   ['AC', '彎料'],
   ['CC', '彎料'],
 ])
@@ -157,7 +157,7 @@ const numMap = (() => {
   const resultMap = new Map()
   numArr.forEach((item) => {
     let value = ''
-    if (AandACandCCMap.has(item)) value = AandACandCCMap.get(item)
+    if (AMap.has(item)) value = '直料'
     else if (carTeethMap.has(item)) {
       value = '車牙料'
     } else value = '彎料'
@@ -186,9 +186,10 @@ const rowInit = {
 }
 
 const sheetNameObj = {
-  a: '主筋',
+  a: '直料',
   car: '車牙',
   stirrups: '彎料',
+  others: '馬椅,斜撐,箍筋,腰筋',
 }
 
 const COF = {
@@ -202,4 +203,4 @@ const COF = {
   '#11': 0.079,
 }
 
-module.exports = { numMap, obj, rowInit, sheetNameObj, carTeethHasLenA, carTeethMap, COF, AandACandCCMap }
+module.exports = { numMap, obj, rowInit, sheetNameObj, carTeethHasLenA, carTeethMap, COF }

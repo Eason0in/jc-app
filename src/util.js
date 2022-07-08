@@ -57,18 +57,18 @@ const handleStringSum = (...args) => {
 
 const getSumRow = (dataArr) => {
   const sumObj = {
-    '#3': 'no',
-    '#4': 'tNo',
-    '#5': 'num',
-    '#6': 'lenA',
-    '#7': 'lenB',
-    '#8': 'lenC',
-    '#10': 'tLen',
-    '#11': 'count',
+    '#3': 'tNo',
+    '#4': 'num',
+    '#5': 'lenA',
+    '#6': 'lenB',
+    '#7': 'lenC',
+    '#8': 'tLen',
+    '#10': 'count',
+    '#11': 'weight',
   }
 
   const reusltObj = {
-    no: 0,
+    no: '合計',
     tNo: 0,
     num: 0,
     lenA: 0,
@@ -77,6 +77,7 @@ const getSumRow = (dataArr) => {
     tLen: 0,
     count: 0,
     weight: 0,
+    remark: 0,
   }
 
   let total = 0
@@ -88,7 +89,7 @@ const getSumRow = (dataArr) => {
     }
   })
 
-  reusltObj.weight = total
+  reusltObj.remark = total
 
   return reusltObj
 }
@@ -112,4 +113,33 @@ const handleSort = (objFillTLenArr) => {
   return objFillTLenArr
 }
 
-module.exports = { createOuterBorder, cellCenterStyle, getStatsObj, handleStringSum, getSumRow, handleSort }
+/**
+ * 排序方式  程式先從第四順序開始排
+  1: 組編號-中文 直料->彎料 tNo
+  2: 組編號-英文 tNo A~ZZ
+  3: 號數 由大到小 num
+  4: 總長度 長到短 tLen
+ * @param {array} objFillTLenArr 
+ */
+const handleOthersSort = (objFillTLenArr) => {
+  const orderList = [
+    (pre, next) => pre.tLen - next.tLen,
+    (pre, next) => (next.num > pre.num ? -1 : 1),
+    (pre, next) => (next.tNo > pre.tNo ? -1 : 1),
+    (pre, next) => (numMap.get(next.tNo) > numMap.get(pre.tNo) ? 1 : -1),
+  ]
+  for (const fun of orderList) {
+    objFillTLenArr.sort(fun)
+  }
+  return objFillTLenArr
+}
+
+module.exports = {
+  createOuterBorder,
+  cellCenterStyle,
+  getStatsObj,
+  handleStringSum,
+  getSumRow,
+  handleSort,
+  handleOthersSort,
+}

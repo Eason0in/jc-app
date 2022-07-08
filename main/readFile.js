@@ -2,7 +2,7 @@ const { dialog } = require('electron')
 const path = require('path')
 const Excel = require('exceljs')
 
-const { numMap, obj, rowInit, sheetNameObj, carTeethHasLenA, carTeethMap, COF, AandACandCCMap } = require('../src/data')
+const { numMap, obj, rowInit, sheetNameObj, carTeethHasLenA, carTeethMap, COF } = require('../src/data')
 const {
   createOuterBorder,
   cellCenterStyle,
@@ -10,6 +10,7 @@ const {
   handleStringSum,
   getSumRow,
   handleSort,
+  handleOthersSort,
 } = require('../src/util')
 
 module.exports = async (e, filePath) => {
@@ -25,10 +26,25 @@ module.exports = async (e, filePath) => {
     //#region dataS
     let ws = ''
 
-    const sheetObj = { a: [], car: [], stirrups: [] }
-    const aObj = {} // 直料的鋼筋 放進去資料格式 { num, tNo, lenB, count, lenA}
+    const sheetObj = { a: [], car: [], stirrups: [], others: [] }
+
+    const aObj = {} // 直料 放進去資料格式 { num, tNo, lenB, count, lenA}
     const carObj = {} // 車牙料 放進去資料格式 { num, tNo, lenB, count, lenA}
-    let stirrupsObj = {} // 箍筋 -彎料 放進去資料格式 { num, tNo, lenB, lenA, count, lenC, tLen }
+    let stirrupsObj = {} // 彎料 放進去資料格式 { num, tNo, lenB, lenA, count, lenC, tLen }
+
+    const othersObj = {} // 箍筋, 馬椅, 斜撐, 腰筋  放進去資料格式 { num, tNo, lenB, lenA, count, lenC, tLen }
+
+    const needTidyObj = {
+      a: {},
+      stirrups: {},
+      car: {},
+    }
+
+    const tidiedObj = {
+      a: [],
+      stirrups: [],
+      car: [],
+    }
 
     //#endregion
 
@@ -40,138 +56,181 @@ module.exports = async (e, filePath) => {
         const row = ws.getRow(i)
         row.eachCell({ includeEmpty: false }, function (cell, colNumber) {
           const resultOrValue = cell.result || cell.value // 代號可能是直接英文或組成的
-          const first = resultOrValue ? typeof resultOrValue === 'string' && resultOrValue.toUpperCase() : undefined
-          const condF = first && numMap.has(first)
+          const tNo = resultOrValue ? typeof resultOrValue === 'string' && resultOrValue.toUpperCase() : undefined
+          const condF = tNo && numMap.has(tNo)
 
-          let second = ''
-          let condS = false
-          // 馬椅 第二個條件要判斷分解後的 lenB lenA
-          if (first === 'ID') {
-            second = row.getCell(colNumber + 1).result
-            const [lenB, lenA] = second.split('X')
-            condS = second && lenB && lenA
-          } else {
-            second = row.getCell(colNumber + 1).result
-            condS = second && typeof second === 'number'
-          }
+          const lenB = row.getCell(colNumber + 1).result
+          const condS = lenB && typeof lenB === 'number'
+          // }
 
-          const thrid = row.getCell(colNumber + 2).result || row.getCell(colNumber + 2).value
+          const count = row.getCell(colNumber + 2).result || row.getCell(colNumber + 2).value
           const regex = new RegExp('x', 'gi')
-          const condT = thrid && regex.test(thrid)
+          const condT = count && regex.test(count)
 
           if (condF && condS && condT) {
+            // 如果前一個有 #4 就抓 沒有就補
             const zero = row.getCell(colNumber - 1).result || row.getCell(colNumber - 1).value
-
-            // const arr = [first, second, thrid.replace(/X|x/gi, '')]
-
-            const obj = { num: mainBar, tNo: first, lenB: second, count: +thrid.replace(/X|x/gi, ''), lenA: '' }
-
+            let num = mainBar
             if (zero && ~zero.indexOf('#')) {
-              // 如果前一個有 #4 就抓 沒有就補
-              obj.num = zero
+              num = zero
             }
 
-            const key = `${obj.num}_${first}_${second}`
-            if (AandACandCCMap.has(first)) {
-              const isNeedRemark = i === 33 // 讀到 33 腰筋搭接 備註加 腰筋
-              if (isNeedRemark) obj.remark = '腰筋'
+            const obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), lenA: '' }
 
+            // #10_A_750
+            const key = `${num}_${tNo}_${lenB}`
+            const { a, stirrups, car } = needTidyObj
+            if (tNo === 'A') {
+              // const isNeedRemark = i === 33 // 讀到 33 腰筋搭接 備註加 腰筋
+              // if (isNeedRemark) obj.remark = '腰筋'
+
+              if (a[key]) {
+                a[key].count += obj.count
+              } else {
+                a[key] = obj
+              }
+            } else if (numMap.get(tNo) === '車牙料') {
+              // CD CE FC 有長度A 讀統計 sheet line 9 對應 #X
+              if (carTeethHasLenA.includes(tNo)) {
+                obj.lenA = lineNightObj[obj.num]
+              }
+              if (car[key]) {
+                car[key].count += obj.count
+              } else {
+                car[key] = obj
+              }
+            } else if (numMap.get(tNo) === '彎料') {
               // AC 有長度C 讀統計 sheet line 9 對應 #X
               // CC 有長度A、C 讀統計 sheet line 9 對應 #X
-              if (first === 'AC') {
+              if (tNo === 'AC') {
                 obj.lenC = lineNightObj[obj.num]
-              } else if (first === 'CC') {
+              } else if (tNo === 'CC') {
                 obj.lenA = lineNightObj[obj.num]
                 obj.lenC = lineNightObj[obj.num]
               }
 
-              if (aObj[key]) {
-                aObj[key].count += obj.count
+              if (stirrups[key]) {
+                stirrups[key].count += obj.count
               } else {
-                aObj[key] = obj
-              }
-            } else if (numMap.get(first) === '車牙料') {
-              // CD CE FC 有長度A 讀統計 sheet line 9 對應 #X
-              if (carTeethHasLenA.includes(first)) {
-                obj.lenA = lineNightObj[obj.num]
-              }
-              if (carObj[key]) {
-                carObj[key].count += obj.count
-              } else {
-                carObj[key] = obj
-              }
-            } else if (first === 'ID') {
-              // 馬椅另外處理 因為它屬於彎料但又不在 line 29-33
-              const [lenB, lenA] = second.split('X')
-              obj.lenB = lenB
-              obj.lenA = lenA
-              obj.lenC = lineNightObj[obj.num]
-              // 計算總長度 馬椅算法：A*2 + C*2 +B
-              obj.tLen = handleStringSum(lenA * 2, lineNightObj[obj.num] * 2, lenB)
-              const key = `${obj.num}_${obj.tNo}_${lenB}_${lenA}`
-              if (stirrupsObj[key]) {
-                stirrupsObj[key].count += obj.count
-              } else {
-                stirrupsObj[key] = obj
+                stirrups[key] = obj
               }
             }
+            // else if (tNo === 'ID') {
+            //   // 馬椅另外處理 因為它屬於彎料但又不在 line 29-33
+            //   const [lenB, lenA] = lenB.split('X')
+            //   obj.lenB = lenB
+            //   obj.lenA = lenA
+            //   obj.lenC = lineNightObj[obj.num]
+            //   // 計算總長度 馬椅算法：A*2 + C*2 +B
+            //   obj.tLen = handleStringSum(lenA * 2, lineNightObj[obj.num] * 2, lenB)
+            //   const key = `${obj.num}_${obj.tNo}_${lenB}_${lenA}`
+            //   if (stirrupsObj[key]) {
+            //     stirrupsObj[key].count += obj.count
+            //   } else {
+            //     stirrupsObj[key] = obj
+            //   }
+            // }
           }
         })
       }
     }
 
-    const handleStirrups = ([size, count]) => {
-      const arr = []
+    const handleOthers = (linesArr) => {
+      // 抓主筋 (沒有 #x 要補的數字)
+      const mainBar = `#${ws.getCell('D4').value}`
+      const [twentySeven, twentyNight, thirtyThree] = linesArr
 
-      //#region  size
-      const sizeRow = ws.getRow(size)
-      sizeRow.eachCell({ includeEmpty: false }, function (cell, colNumber) {
+      //#region 馬椅 斜撐 27
+      const twentySevenRow = ws.getRow(twentySeven)
+      twentySevenRow.eachCell({ includeEmpty: false }, function (cell, colNumber) {
+        const resultOrValue = cell.result || cell.value // 代號可能是直接英文或組成的
+        const tNo = resultOrValue ? typeof resultOrValue === 'string' && resultOrValue.toUpperCase() : undefined
+        const condF = tNo && numMap.has(tNo)
+
+        let second = ''
+        let condS = false
+        let lenB = ''
+        let lenA = ''
+        // 馬椅 第二個條件要判斷分解後的 lenB lenA
+        if (tNo === 'ID') {
+          second = twentySevenRow.getCell(colNumber + 1).result
+          ;[lenB, lenA] = second.split('X')
+          condS = second && lenB && lenA
+        } else {
+          lenB = twentySevenRow.getCell(colNumber + 1).result
+          condS = lenB && typeof lenB === 'number'
+        }
+
+        const count = twentySevenRow.getCell(colNumber + 2).result || twentySevenRow.getCell(colNumber + 2).value
+        const regex = new RegExp('x', 'gi')
+        const condT = count && regex.test(count)
+
+        if (condF && condS && condT) {
+          // 如果前一個有 #4 就抓 沒有就補
+          const zero = twentySevenRow.getCell(colNumber - 1).result || twentySevenRow.getCell(colNumber - 1).value
+          let num = mainBar
+          if (zero && ~zero.indexOf('#')) {
+            num = zero
+          }
+
+          let key = ''
+          let obj = {}
+          if (tNo === 'A') {
+            // 斜撐
+            // #10_A_750
+            key = `${num}_${tNo}_${lenB}`
+
+            obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), tLen: lenB }
+          } else if (tNo === 'ID') {
+            // 馬椅
+            const lenC = lineNightObj[num]
+            // 計算總長度 馬椅算法：A*2 + C*2 +B
+            const tLen = handleStringSum(lenA * 2, lineNightObj[num] * 2, lenB)
+
+            obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), lenA, lenC, tLen }
+
+            key = `${obj.num}_${obj.tNo}_${lenB}_${lenA}`
+          }
+
+          if (othersObj[key]) {
+            othersObj[key].count += obj.count
+          } else {
+            othersObj[key] = obj
+          }
+        }
+      })
+
+      //#endregion
+
+      //#region 箍筋 29
+      const arr = []
+      let subArr = []
+      const twentyNightRow = ws.getRow(twentyNight)
+      twentyNightRow.eachCell({ includeEmpty: false }, function (cell, colNumber) {
         const first = cell.result
         const condF = first && first.length === 2 && ~first.indexOf('#')
 
-        const second = sizeRow.getCell(colNumber + 1).result
+        const second = twentyNightRow.getCell(colNumber + 1).result
         const secArr =
           second &&
           second
+            .toString()
             .trim()
             .replace(/\(|\)|x/gi, '')
             .split(' ')
         const condS = second && numMap.has(secArr[0])
+
         if (condF && condS) {
-          arr.push([first, ...secArr])
+          subArr.push(first, ...secArr)
+        }
+
+        if (cell.value === '箍筋總數' && typeof second === 'number') {
+          const count = second
+          subArr.push(count)
+          arr.push(subArr)
+          subArr = []
         }
       })
-      //#endregion
-
-      //#region  count
-
-      const countRow = ws.getRow(count)
-      const countArr = []
-      countRow.eachCell({ includeEmpty: false }, function (cell, colNumber) {
-        if (cell.result !== '箍筋數量' && cell.result !== undefined) {
-          countArr.push(cell.result)
-          const nextCell = countRow.getCell(colNumber + 1)
-          // 判斷第一個是否為整數字，還有下一個是否沒值，要補 "單"
-          if (Number.isInteger(cell.result) && nextCell.result === undefined) {
-            countArr.push('單')
-          }
-        }
-      })
-      let sum = 0
-      // 判斷下一位是單/雙/三 自己要+1/2/3 次
-      for (let j = 0; j < countArr.length; j++) {
-        const unit = obj[countArr[j + 1]]
-        for (let z = 1; z <= unit; z++) {
-          sum += countArr[j]
-        }
-
-        // 如果蒐集滿10個5組 就把 count 加到該 arr，並將 sum 歸零
-        if (Number.isInteger((j + 1) / 10)) {
-          // 5小組 數字+單/雙/三
-          arr[(j + 1) / 10 - 1].push(sum)
-          sum = 0
-        }
-      }
 
       // 加蓋子
       const hatArr = Object.assign([], arr).map(([num, , lenB, , count]) => {
@@ -180,64 +239,152 @@ module.exports = async (e, filePath) => {
         return [num, 'E', lenB, lenA, count, lenC]
       })
 
-      //#endregion
-      const stirrupObj = arr.reduce((obj, [num, tNo, lenB, lenA, count]) => {
+      arr.forEach(([num, tNo, lenB, lenA, count]) => {
         const key = `${num}_${tNo}_${lenB}_${lenA}`
         // 計算總長度 因為箍筋算法：A*2 +B + 2* 號數去讀 lineTwenSevenObj 對應 #X
         const tLen = handleStringSum(lenB, lenA * 2, lineTwenSevenObj[num] * 2)
-        if (obj[key]) {
-          obj[key].count += count
+        if (othersObj[key]) {
+          othersObj[key].count += count
         } else {
-          obj[key] = { num, tNo, lenB, lenA, count, tLen }
+          othersObj[key] = { num, tNo, lenB, lenA, count, tLen }
         }
         return obj
-      }, stirrupsObj)
+      })
 
-      const stirrupHatObj = hatArr.reduce((obj, [num, tNo, lenB, lenA, count, lenC]) => {
+      hatArr.forEach(([num, tNo, lenB, lenA, count, lenC]) => {
         const key = `${num}_${lenB}`
         // 計算總長度 因為箍筋蓋算法：A+B+C
         const tLen = handleStringSum(lenB, lenA, lenC)
-        if (obj[key]) {
-          obj[key].count += count
+        if (othersObj[key]) {
+          othersObj[key].count += count
         } else {
-          obj[key] = { num, tNo, lenB, lenA, count, lenC, tLen }
+          othersObj[key] = { num, tNo, lenB, lenA, count, lenC, tLen }
         }
 
         return obj
-      }, stirrupsObj)
+      })
 
-      // 要先將自己 (stirrupsObj) 放進去 因為馬椅可能已經先存進去了
-      stirrupsObj = { ...stirrupObj, ...stirrupHatObj }
+      //#endregion
+
+      //#region 腰筋 33
+      const thirtyThreeRow = ws.getRow(thirtyThree)
+      thirtyThreeRow.eachCell({ includeEmpty: false }, function (cell, colNumber) {
+        const resultOrValue = cell.result || cell.value // 代號可能是直接英文或組成的
+        const tNo = resultOrValue ? typeof resultOrValue === 'string' && resultOrValue.toUpperCase() : undefined
+        const condF = tNo && numMap.has(tNo)
+
+        const lenB = thirtyThreeRow.getCell(colNumber + 1).result
+        const condS = lenB && typeof lenB === 'number'
+
+        const count = thirtyThreeRow.getCell(colNumber + 2).result || thirtyThreeRow.getCell(colNumber + 2).value
+        const regex = new RegExp('x', 'gi')
+        const condT = count && regex.test(count)
+
+        if (condF && condS && condT) {
+          // 如果前一個有 #4 就抓 沒有就補
+          const zero = thirtyThreeRow.getCell(colNumber - 1).result || thirtyThreeRow.getCell(colNumber - 1).value
+          let num = mainBar
+          if (zero && ~zero.indexOf('#')) {
+            num = zero
+          }
+
+          const obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), remark: '腰筋', tLen: lenB }
+
+          // #10_A_750
+          const key = `${num}_${tNo}_${lenB}`
+          if (othersObj[key]) {
+            othersObj[key].count += obj.count
+          } else {
+            othersObj[key] = obj
+          }
+        }
+      })
+      //#endregion
     }
 
     //#region 將資料塞到 aObj carObj stirrupsObj
     const handleSheet = () => {
-      // 除了箍筋之外的鋼筋 讀20~28 + 33~43
-      const otherBarrangeArr = [
-        { s: 20, l: 9 },
-        { s: 33, l: 11 },
-      ]
-      otherBarrangeArr.forEach(handleBars)
+      // // 除了箍筋之外的鋼筋 讀20~28 + 33~43
+      // const otherBarrangeArr = [
+      //   { s: 20, l: 9 },
+      //   { s: 33, l: 11 },
+      // ]
+      // otherBarrangeArr.forEach(handleBars)
 
-      // 箍筋 讀 29~32 行
-      const stirrupsRangeArr = [29, 32]
-      handleStirrups(stirrupsRangeArr)
+      // 20~26 , 34~43 直 彎 車
+      const needTidyArr = [
+        { s: 20, l: 7 },
+        { s: 34, l: 10 },
+      ]
+      needTidyArr.forEach(handleBars)
+
+      //  27-馬椅 斜撐 29-箍筋 33-腰筋 讀 27 29 33 行
+      const othersRangeArr = [27, 29, 33]
+      handleOthers(othersRangeArr)
     }
     //#endregion
 
-    const tidyA = () => {
-      const { a } = sheetObj
-      const aObjFillTLenArr = Object.values(aObj).map((value) => {
-        const { num, lenB, count, lenC = '', lenA = '' } = value
-        const tLen = handleStringSum(lenB, lenA, lenC) || 0
+    const handleTidy = () => {
+      Object.entries(needTidyObj).forEach(([key, arr]) => {
+        // 用號數分類，並做排序
+        const arrangeObj = Object.values(arr)
+          .sort((pre, next) => next.lenB - pre.lenB)
+          .sort((pre, next) => (next.num > pre.num ? -1 : 1))
+          .reduce((obj, item) => {
+            const { num } = item
+            return {
+              ...obj,
+              [num]: obj[num] ? [...obj[num], item] : [item],
+            }
+          }, {})
+
+        const tidiedArr = Object.values(arrangeObj).map((subArr) => {
+          let currentMax = Math.ceil(subArr[0].lenB / 10) * 10
+          let range = 50
+          let nextMax = currentMax - range
+
+          for (let i = 0; i < subArr.length; i++) {
+            while (subArr[i].lenB <= currentMax) {
+              if (subArr[i].lenB > nextMax) {
+                subArr[i].newLenB = currentMax
+                break
+              } else {
+                currentMax = nextMax
+                nextMax -= range
+              }
+            }
+          }
+          return subArr
+        })
+
+        tidiedObj[key] = tidiedArr
+      })
+    }
+
+    const setA = () => {
+      const { a } = tidiedObj
+      const togetherObj = a.flat().reduce((obj, value) => {
+        const { num, tNo, newLenB, count } = value
+        const key = `${num}_${tNo}_${newLenB}`
+        if (obj[key]) {
+          obj[key].count += count
+        } else {
+          obj[key] = value
+        }
+        return obj
+      }, {})
+
+      const aFillTLenArr = Object.values(togetherObj).map((value) => {
+        const { num, newLenB, count, lenC = '', lenA = '' } = value
+        const tLen = handleStringSum(newLenB, lenA, lenC) || 0
         const weight = Math.round(COF[num] * count * tLen)
         return { ...value, tLen, weight }
       })
 
-      handleSort(aObjFillTLenArr).forEach((value, i) => {
-        const { num, tNo, lenB, count, remark = '', lenC = '', lenA = '', tLen, weight } = value
-        a.push(
-          { ...rowInit, lenB: lenB },
+      handleSort(aFillTLenArr).forEach((value, i) => {
+        const { num, tNo, newLenB, count, remark = '', lenC = '', lenA = '', tLen, weight } = value
+        sheetObj.a.push(
+          { ...rowInit, lenB: newLenB },
           {
             no: i + 1,
             tNo: numMap.get(tNo),
@@ -254,20 +401,31 @@ module.exports = async (e, filePath) => {
         )
       })
     }
-    const tidyCar = () => {
-      const { car } = sheetObj
-      const carObjFillTLenArr = Object.values(carObj).map((value) => {
-        const { num, tNo, lenB, count, lenA } = value
-        const tLen = handleStringSum(lenB, lenA, carTeethMap.get(tNo)) || 0
+
+    const setCar = () => {
+      const { car } = tidiedObj
+      const togetherObj = car.flat().reduce((obj, value) => {
+        const { num, tNo, newLenB, count } = value
+        const key = `${num}_${tNo}_${newLenB}`
+        if (obj[key]) {
+          obj[key].count += count
+        } else {
+          obj[key] = value
+        }
+        return obj
+      }, {})
+      const carFillTLenArr = Object.values(togetherObj).map((value) => {
+        const { num, tNo, newLenB, count, lenA } = value
+        const tLen = handleStringSum(newLenB, lenA, carTeethMap.get(tNo)) || 0
         const weight = Math.round(COF[num] * count * tLen)
         return { ...value, tLen, weight }
       })
 
-      handleSort(carObjFillTLenArr).forEach((value, i) => {
-        const { num, tNo, lenB, count, lenA, tLen, weight } = value
+      handleSort(carFillTLenArr).forEach((value, i) => {
+        const { num, tNo, newLenB, count, lenA, tLen, weight } = value
 
-        car.push(
-          { ...rowInit, lenB },
+        sheetObj.car.push(
+          { ...rowInit, lenB: newLenB },
           {
             no: i + 1,
             tNo: numMap.get(tNo),
@@ -285,17 +443,28 @@ module.exports = async (e, filePath) => {
       })
     }
 
-    const tidyStirrups = () => {
-      const { stirrups } = sheetObj
-      const stirrupsObjFillTLenArr = Object.values(stirrupsObj).map((value) => {
-        const { num, tLen, count } = value
+    const setStirrups = () => {
+      const { stirrups } = tidiedObj
+      const togetherObj = stirrups.flat().reduce((obj, value) => {
+        const { num, tNo, newLenB, count } = value
+        const key = `${num}_${tNo}_${newLenB}`
+        if (obj[key]) {
+          obj[key].count += count
+        } else {
+          obj[key] = value
+        }
+        return obj
+      }, {})
+      const stirrupsFillTLenArr = Object.values(togetherObj).map((value) => {
+        const { num, count, newLenB, lenC = '', lenA = '' } = value
+        const tLen = handleStringSum(newLenB, lenA, lenC) || 0
         const weight = Math.round(COF[num] * count * tLen)
-        return { ...value, weight }
+        return { ...value, tLen, weight }
       })
-      handleSort(stirrupsObjFillTLenArr).forEach((value, i) => {
-        const { num, tNo, lenB, lenA, count, lenC, tLen, weight } = value
-        stirrups.push(
-          { ...rowInit, lenB: lenB },
+      handleSort(stirrupsFillTLenArr).forEach((value, i) => {
+        const { num, tNo, newLenB, lenA, count, lenC, tLen, weight } = value
+        sheetObj.stirrups.push(
+          { ...rowInit, lenB: newLenB },
           {
             no: i + 1,
             tNo: numMap.get(tNo),
@@ -307,6 +476,33 @@ module.exports = async (e, filePath) => {
             count,
             weight,
             remark: '',
+            imageName: `${tNo}.png`,
+          }
+        )
+      })
+    }
+
+    const setOthers = () => {
+      const othersFillTLenArr = Object.values(othersObj).map((value) => {
+        const { num, tLen, count } = value
+        const weight = Math.round(COF[num] * count * tLen)
+        return { ...value, weight }
+      })
+      handleOthersSort(othersFillTLenArr).forEach((value, i) => {
+        const { num, tNo, lenB, lenA, count, lenC, tLen, weight, remark = '' } = value
+        sheetObj.others.push(
+          { ...rowInit, lenB: lenB },
+          {
+            no: i + 1,
+            tNo: numMap.get(tNo),
+            num,
+            lenA,
+            lenB: '',
+            lenC,
+            tLen,
+            count,
+            weight,
+            remark,
             imageName: `${tNo}.png`,
           }
         )
@@ -392,15 +588,16 @@ module.exports = async (e, filePath) => {
           rowInit,
           rowInit,
           {
-            no: '#3',
-            tNo: '#4',
-            num: '#5',
-            lenA: '#6',
-            lenB: '#7',
-            lenC: '#8',
-            tLen: '#10',
-            count: '#11',
-            weight: '合計(KG)',
+            no: '材質',
+            tNo: '#3',
+            num: '#4',
+            lenA: '#5',
+            lenB: '#6',
+            lenC: '#7',
+            tLen: '#8',
+            count: '#10',
+            weight: '#11',
+            remark: '合計(KG)',
           },
           sumRow,
         ]
@@ -434,10 +631,11 @@ module.exports = async (e, filePath) => {
       })
     }
 
-    const handleArrtoSheetObj = () => {
-      tidyA()
-      tidyCar()
-      tidyStirrups()
+    const handleToSheetObj = () => {
+      setA()
+      setCar()
+      setStirrups()
+      setOthers()
     }
 
     const handleWrite = async () => {
@@ -462,15 +660,69 @@ module.exports = async (e, filePath) => {
       //#endregion
     }
 
+    const handleTidyWrite = async () => {
+      const workbook = new Excel.Workbook() // 創建試算表檔案
+      // 將 tidiedObj 三個類別裡面的資料彙總個別產生一個 sheet
+      Object.entries(tidiedObj).forEach(async ([key, dataArr]) => {
+        const sheet = workbook.addWorksheet(sheetNameObj[key])
+        //在檔案中新增工作表
+
+        //#region step1 定義欄位
+        sheet.columns = [
+          { header: '號數', key: 'num', width: 9, style: cellCenterStyle },
+          { header: '原長度', key: 'lenB', width: 9, style: cellCenterStyle },
+          { header: '歸整後長度', key: 'newLenB', width: 15, style: cellCenterStyle },
+          { header: '支數', key: 'count', width: 15, style: cellCenterStyle },
+        ]
+
+        //#endregion
+
+        //#region step2 把內容資料先放進去並設定 border
+        // 將rows 加入 sheet
+        sheet.addRows(dataArr.flat())
+
+        // 設定 border
+        sheet.eachRow(function (row) {
+          row.border = {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' },
+          }
+        })
+
+        //#endregion
+      })
+
+      //#region 產生檔案
+
+      dialog
+        .showSaveDialog({
+          defaultPath: path.join(__dirname, '歸整.xlsx'),
+          buttonLabel: '存檔',
+          filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
+        })
+        .then((resolve) => {
+          const { canceled, filePath } = resolve
+          if (!canceled) {
+            workbook.xlsx.writeFile(filePath)
+          }
+        })
+      //#endregion
+    }
+
     workbook.eachSheet((sheet, id) => {
       const nameRex = new RegExp(/^[a-zA-Z0-9]+$/gim)
       if (nameRex.test(sheet.name)) {
         ws = sheet
-        handleSheet()
+        handleSheet() // 將資料讀進 { key: {}}
       }
     })
 
-    handleArrtoSheetObj()
+    handleTidy() // 歸整
+    handleTidyWrite() // 寫歸整檔案
+
+    handleToSheetObj() // 將 tidiedObj othersObj 排序並放入 sheetObj
     handleWrite()
   } catch (error) {
     dialog.showErrorBox('錯誤', error.stack)
