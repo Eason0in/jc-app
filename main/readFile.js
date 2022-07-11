@@ -11,6 +11,7 @@ const {
   getSumRow,
   handleSort,
   handleOthersSort,
+  commaStyle,
 } = require('../src/util')
 
 module.exports = async (e, filePath) => {
@@ -512,18 +513,19 @@ module.exports = async (e, filePath) => {
     const setSheetToWB = (workbook) => {
       Object.entries(sheetObj).forEach(async ([key, dataArr]) => {
         const sheet = workbook.addWorksheet(`${floorName}樑-${sheetNameObj[key]}`) //在檔案中新增工作表
+
         //#region step1 定義欄位
         sheet.columns = [
-          { header: '編號', key: 'no', width: 9, style: cellCenterStyle },
-          { header: '組編號', key: 'tNo', width: 9, style: cellCenterStyle },
-          { header: '號數', key: 'num', width: 9, style: cellCenterStyle },
-          { header: '長A', key: 'lenA', width: 9, style: cellCenterStyle },
-          { header: '型狀/長度B', key: 'lenB', width: 15, style: cellCenterStyle },
-          { header: '長C', key: 'lenC', width: 9, style: cellCenterStyle },
-          { header: '總長度', key: 'tLen', width: 9, style: cellCenterStyle },
-          { header: '支數', key: 'count', width: 9, style: cellCenterStyle },
-          { header: '重量', key: 'weight', width: 10, style: cellCenterStyle },
-          { header: '備註', key: 'remark', width: 9, style: cellCenterStyle },
+          { header: '編號', key: 'no', width: 5.625, style: cellCenterStyle },
+          { header: '組編號', key: 'tNo', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '號數', key: 'num', width: 5.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '長A', key: 'lenA', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '型狀/長度B', key: 'lenB', width: 15.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '長C', key: 'lenC', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '總長度', key: 'tLen', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '支數', key: 'count', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '重量', key: 'weight', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '備註', key: 'remark', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
         ]
 
         //#endregion
@@ -597,7 +599,7 @@ module.exports = async (e, filePath) => {
             tLen: '#8',
             count: '#10',
             weight: '#11',
-            remark: '合計(KG)',
+            remark: '合計KG',
           },
           sumRow,
         ]
@@ -640,6 +642,7 @@ module.exports = async (e, filePath) => {
 
     const handleWrite = async () => {
       const workbook = new Excel.Workbook() // 創建試算表檔案
+
       // 將 sheetObj 三個類別裡面的資料彙總 (有可能同一種資料有兩筆，筆數要加總)
       setSheetToWB(workbook)
 
@@ -722,8 +725,8 @@ module.exports = async (e, filePath) => {
     handleTidy() // 歸整
     handleTidyWrite() // 寫歸整檔案
 
-    handleToSheetObj() // 將 tidiedObj othersObj 排序並放入 sheetObj
-    handleWrite()
+    // handleToSheetObj() // 將 tidiedObj othersObj 排序並放入 sheetObj
+    // handleWrite()
   } catch (error) {
     dialog.showErrorBox('錯誤', error.stack)
   }

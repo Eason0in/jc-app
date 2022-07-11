@@ -36,6 +36,11 @@ const cellCenterStyle = {
   alignment: { vertical: 'middle', horizontal: 'center' },
 }
 
+//千位符號
+const commaStyle = {
+  numFmt: '#,##0',
+}
+
 const getStatsObj = (worksheet, headerColNum, contentColNum) => {
   const range = [3, 4, 5, 6, 7, 8, 9, 10, 11]
   const headerRow = worksheet.getRow(headerColNum)
@@ -142,4 +147,5 @@ module.exports = {
   getSumRow,
   handleSort,
   handleOthersSort,
+  commaStyle,
 }
