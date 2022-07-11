@@ -14,8 +14,9 @@ const {
   commaStyle,
 } = require('../src/util')
 
-module.exports = async (e, filePath) => {
+module.exports = async (e, data) => {
   try {
+    const { filePath, range } = data
     const workbook = new Excel.Workbook()
     await workbook.xlsx.readFile(filePath)
     const buildName = workbook.getWorksheet('統計').getCell('D13').value
@@ -341,7 +342,6 @@ module.exports = async (e, filePath) => {
 
         const tidiedArr = Object.values(arrangeObj).map((subArr) => {
           let currentMax = Math.ceil(subArr[0].lenB / 10) * 10
-          let range = 50
           let nextMax = currentMax - range
 
           for (let i = 0; i < subArr.length; i++) {
