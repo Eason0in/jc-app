@@ -1,4 +1,4 @@
-const { dialog } = require('electron')
+const { dialog, BrowserWindow } = require('electron')
 const path = require('path')
 const Excel = require('exceljs')
 
@@ -16,6 +16,8 @@ const {
 
 module.exports = async (e, data) => {
   try {
+    const webContents = e.sender
+    const win = BrowserWindow.fromWebContents(webContents)
     const { filePath, range } = data
     const workbook = new Excel.Workbook()
     await workbook.xlsx.readFile(filePath)
@@ -647,19 +649,22 @@ module.exports = async (e, data) => {
       setSheetToWB(workbook)
 
       //#region 產生檔案
+      workbook.xlsx.writeBuffer().then((content) => {
+        win.webContents.send('material-file', content)
+      })
 
-      dialog
-        .showSaveDialog({
-          defaultPath: path.join(__dirname, '料單.xlsx'),
-          buttonLabel: '存檔',
-          filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
-        })
-        .then((resolve) => {
-          const { canceled, filePath } = resolve
-          if (!canceled) {
-            workbook.xlsx.writeFile(filePath)
-          }
-        })
+      // dialog
+      //   .showSaveDialog({
+      //     defaultPath: path.join(__dirname, '料單.xlsx'),
+      //     buttonLabel: '存檔',
+      //     filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
+      //   })
+      //   .then((resolve) => {
+      //     const { canceled, filePath } = resolve
+      //     if (!canceled) {
+      //       workbook.xlsx.writeFile(filePath)
+      //     }
+      //   })
       //#endregion
     }
 
@@ -697,20 +702,23 @@ module.exports = async (e, data) => {
         //#endregion
       })
 
-      //#region 產生檔案
+      //#region 將檔案轉成 buffer 丟到前面
+      workbook.xlsx.writeBuffer().then((content) => {
+        win.webContents.send('tidy-file', content)
+      })
 
-      dialog
-        .showSaveDialog({
-          defaultPath: path.join(__dirname, '歸整.xlsx'),
-          buttonLabel: '存檔',
-          filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
-        })
-        .then((resolve) => {
-          const { canceled, filePath } = resolve
-          if (!canceled) {
-            workbook.xlsx.writeFile(filePath)
-          }
-        })
+      // dialog
+      //   .showSaveDialog({
+      //     defaultPath: path.join(__dirname, '歸整.xlsx'),
+      //     buttonLabel: '存檔',
+      //     filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
+      //   })
+      //   .then((resolve) => {
+      //     const { canceled, filePath } = resolve
+      //     if (!canceled) {
+      //       workbook.xlsx.writeFile(filePath)
+      //     }
+      //   })
       //#endregion
     }
 
@@ -725,8 +733,8 @@ module.exports = async (e, data) => {
     handleTidy() // 歸整
     handleTidyWrite() // 寫歸整檔案
 
-    // handleToSheetObj() // 將 tidiedObj othersObj 排序並放入 sheetObj
-    // handleWrite()
+    handleToSheetObj() // 將 tidiedObj othersObj 排序並放入 sheetObj
+    handleWrite()
   } catch (error) {
     dialog.showErrorBox('錯誤', error.stack)
   }

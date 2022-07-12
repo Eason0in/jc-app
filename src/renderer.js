@@ -1,6 +1,7 @@
 const inputFile = document.getElementById('readInput')
 // const insertFile = document.getElementById('insertInput')
 // const btn = document.getElementById('btn')
+
 const btnClear = document.getElementById('btnClear')
 const selectRange = document.getElementById('range')
 
@@ -15,9 +16,31 @@ inputFile.addEventListener('change', (e) => {
 //   window.electronAPI.insertFile(file.path)
 // })
 
-// btn.addEventListener('click', (e) => {
+// btn.addEventListener('click', () => {
 //   window.electronAPI.createFile()
 // })
+
+window.electronAPI.sendTidyFile((event, content) => {
+  const blobData = new Blob([content], {
+    type: 'application/vnd.ms-excel;charset=utf-8;',
+  })
+  const tidyFile = document.getElementById('tidyFile')
+
+  tidyFile.href = URL.createObjectURL(blobData)
+  tidyFile.download = '歸整.xlsx'
+  tidyFile.innerText = '歸整.xlsx'
+})
+
+window.electronAPI.sendMaterialFile((event, content) => {
+  const blobData = new Blob([content], {
+    type: 'application/vnd.ms-excel;charset=utf-8;',
+  })
+  const materialFile = document.getElementById('materialFile')
+
+  materialFile.href = URL.createObjectURL(blobData)
+  materialFile.download = '料單.xlsx'
+  materialFile.innerText = '料單.xlsx'
+})
 
 btnClear.addEventListener('click', (e) => {
   inputFile.value = ''

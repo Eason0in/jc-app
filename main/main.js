@@ -11,40 +11,49 @@ ipcMain.handle('insert-file', async (e, filePath) => {
   const workbook = new Excel.Workbook()
   await workbook.xlsx.readFile(filePath)
 
-  const sheet = workbook.getWorksheet('主筋')
+  const row = workbook.getWorksheet('鋼筋型號').getRow(4) // 30.75
+  const cell = row.getCell(2) // 15
+
+  workbook.addWorksheet('abc', { properties: { defaultRowHeight: 30, defaultColWidth: 19.625 } })
+  const abcWs = workbook.getWorksheet('abc')
+
   // console.log(sheet.name)
 
-  console.log(
-    'a',
-    sheet.columns.forEach((item) => console.log(item.width))
-  )
+  // console.log(
+  //   'a',
+  //   sheet.columns.forEach((item) => console.log(item.width))
+  // )
 
-  // const imageArr = ['A.PNG', 'B.JPG']
+  const imageArr = ['test.png']
 
-  // imageArr.forEach((item, i) => {
-  //   const imagePath = path.join(__dirname, 'public', item)
-  //   const imageId1 = workbook.addImage({
-  //     filename: imagePath,
-  //     extension: 'png',
+  imageArr.forEach((item, i) => {
+    const imagePath = path.join(__dirname, '../public/images', item)
+    const imageId1 = workbook.addImage({
+      filename: imagePath,
+      extension: 'png',
+    })
+    abcWs.addImage(imageId1, `A1:A1`)
+  })
+
+  workbook.xlsx.writeFile('abc.xlsx').then(() => console.log('finished'))
+  // dialog
+  //   .showSaveDialog({
+  //     defaultPath: path.join(__dirname, 'public', '料單.xlsx'),
+  //     buttonLabel: '存檔',
+  //     filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
   //   })
-  //   sheet.addImage(imageId1, `E${i + 1}:E${i + 1}`)
-  // })
-
-  dialog
-    .showSaveDialog({
-      defaultPath: path.join(__dirname, 'public', '料單.xlsx'),
-      buttonLabel: '存檔',
-      filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
-    })
-    .then((resolve) => {
-      const { canceled, filePath } = resolve
-      if (!canceled) {
-        workbook.xlsx.writeFile(filePath)
-      }
-    })
+  //   .then((resolve) => {
+  //     const { canceled, filePath } = resolve
+  //     if (!canceled) {
+  //       workbook.xlsx.writeFile(filePath)
+  //     }
+  //   })
 })
 
-ipcMain.handle('create-file', async () => {
+ipcMain.handle('create-file', async (e) => {
+  const webContents = e.sender
+  const win = BrowserWindow.fromWebContents(webContents)
+
   const workbook = new Excel.Workbook()
 
   const sheet = workbook.addWorksheet('My Sheet')
@@ -97,18 +106,22 @@ ipcMain.handle('create-file', async () => {
   //   // sheet.addImage(imageId1, `D${i + 2}:D${i + 2}`)
   // })
 
-  dialog
-    .showSaveDialog({
-      defaultPath: path.join(__dirname, '測試檔案.xlsx'),
-      buttonLabel: '存檔',
-      filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
-    })
-    .then((resolve) => {
-      const { canceled, filePath } = resolve
-      if (!canceled) {
-        workbook.xlsx.writeFile(filePath)
-      }
-    })
+  // dialog
+  //   .showSaveDialog({
+  //     defaultPath: path.join(__dirname, '測試檔案.xlsx'),
+  //     buttonLabel: '存檔',
+  //     filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
+  //   })
+  //   .then((resolve) => {
+  //     const { canceled, filePath } = resolve
+  //     if (!canceled) {
+  //       workbook.xlsx.writeFile(filePath)
+  //     }
+  //   })
+
+  workbook.xlsx.writeBuffer().then((content) => {
+    win.webContents.send('a-tag-content', content)
+  })
 })
 
 const createWindow = () => {
@@ -124,6 +137,8 @@ const createWindow = () => {
 
   if (!isDev) {
     autoUpdater.checkForUpdates()
+  } else {
+    win.webContents.openDevTools()
   }
 }
 
@@ -141,7 +156,7 @@ menu.append(
   })
 )
 
-Menu.setApplicationMenu(menu)
+// Menu.setApplicationMenu(menu)
 
 app.whenReady().then(createWindow)
 
