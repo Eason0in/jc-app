@@ -156,7 +156,7 @@ menu.append(
   })
 )
 
-// Menu.setApplicationMenu(menu)
+Menu.setApplicationMenu(menu)
 
 app.whenReady().then(createWindow)
 
