@@ -5,6 +5,8 @@ const { autoUpdater } = require('electron-updater')
 const readFile = require('./readFile')
 const isDev = require('electron-is-dev')
 
+const ExpirationDate = '2023/07/01'
+
 ipcMain.handle('read-file', readFile)
 
 ipcMain.handle('insert-file', async (e, filePath) => {
@@ -158,7 +160,22 @@ menu.append(
 
 Menu.setApplicationMenu(menu)
 
-app.whenReady().then(createWindow)
+const isValidDate = () => {
+  if (isDev) return true
+
+  // 如果是正式環境，檢查到期日
+  const today = new Date(new Date().toDateString())
+  return new Date(ExpirationDate) >= today
+}
+
+app.whenReady().then(() => {
+  if (!isValidDate()) {
+    dialog.showErrorBox('軟體已過期', '軟體已過期，請洽管理員')
+    app.quit()
+  }
+
+  createWindow()
+})
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
