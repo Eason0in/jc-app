@@ -1,9 +1,9 @@
 const inputFile = document.getElementById('readInput')
 const materialFile = document.getElementById('materialFile')
 const tidyFile = document.getElementById('tidyFile')
+const constructionFile = document.getElementById('constructionFile')
 
 // const insertFile = document.getElementById('insertInput')
-// const btn = document.getElementById('btn')
 
 const btnClear = document.getElementById('btnClear')
 const selectRange = document.getElementById('range')
@@ -17,10 +17,6 @@ inputFile.addEventListener('change', (e) => {
 // insertFile.addEventListener('change', (e) => {
 //   const [file] = e.target.files
 //   window.electronAPI.insertFile(file.path)
-// })
-
-// btn.addEventListener('click', () => {
-//   window.electronAPI.createFile()
 // })
 
 window.electronAPI.sendTidyFile((event, content) => {
@@ -41,10 +37,21 @@ window.electronAPI.sendMaterialFile((event, content) => {
   materialFile.innerText = '料單.xlsx'
 })
 
+window.electronAPI.sendConstructionFile((event, content) => {
+  const blobData = new Blob([content], {
+    type: 'application/vnd.ms-excel;charset=utf-8;',
+  })
+
+  constructionFile.href = URL.createObjectURL(blobData)
+  constructionFile.innerText = '歸整後施工圖.xlsx'
+})
+
 btnClear.addEventListener('click', (e) => {
   inputFile.value = ''
   materialFile.href = ''
   materialFile.innerText = ''
   tidyFile.href = ''
   tidyFile.innerText = ''
+  constructionFile.href = ''
+  constructionFile.innerText = ''
 })

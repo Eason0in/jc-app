@@ -31,7 +31,10 @@
           "repo": "CalculateBuilding"
         }
       ]
-    },
-    "icon": "256x256.png"
+    }
+  },
+  "devEngines": {
+    "node": ">=16.x",
+    "yarn": ">=1.22.x"
   }
 }

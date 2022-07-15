@@ -79,7 +79,15 @@ module.exports = async (e, data) => {
               num = zero
             }
 
-            const obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), lenA: '' }
+            const obj = {
+              num,
+              tNo,
+              lenB,
+              count: +count.replace(/X|x/gi, ''),
+              lenA: '',
+              sheetName: ws.name,
+              sheetAddress: row.getCell(colNumber + 1)._address,
+            }
 
             // #10_A_750
             const key = `${num}_${tNo}_${lenB}`
@@ -681,6 +689,8 @@ module.exports = async (e, data) => {
           { header: '原長度', key: 'lenB', width: 9, style: cellCenterStyle },
           { header: '歸整後長度', key: 'newLenB', width: 15, style: cellCenterStyle },
           { header: '支數', key: 'count', width: 15, style: cellCenterStyle },
+          { header: '原 sheet name', key: 'sheetName', width: 15, style: cellCenterStyle },
+          { header: '原 sheet address', key: 'sheetAddress', width: 15, style: cellCenterStyle },
         ]
 
         //#endregion
@@ -722,6 +732,20 @@ module.exports = async (e, data) => {
       //#endregion
     }
 
+    const handleReWrite = () => {
+      Object.values(tidiedObj).forEach((arr) => {
+        arr.flat().forEach(({ sheetName, sheetAddress, newLenB }) => {
+          const sheet = workbook.getWorksheet(sheetName)
+          sheet.getCell(sheetAddress).value = newLenB
+        })
+      })
+
+      // 產生檔案
+      workbook.xlsx.writeBuffer().then((content) => {
+        win.webContents.send('construction-file', content)
+      })
+    }
+
     workbook.eachSheet((sheet, id) => {
       const nameRex = new RegExp(/^[a-zA-Z0-9]+$/gim)
       if (nameRex.test(sheet.name)) {
@@ -735,6 +759,8 @@ module.exports = async (e, data) => {
 
     handleToSheetObj() // 將 tidiedObj othersObj 排序並放入 sheetObj
     handleWrite()
+
+    handleReWrite() // 歸整後資料施工圖
   } catch (error) {
     dialog.showErrorBox('錯誤', error.stack)
   }
