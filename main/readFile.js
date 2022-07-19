@@ -530,7 +530,12 @@ module.exports = async (e, data) => {
           { header: '組編號', key: 'tNo', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
           { header: '號數', key: 'num', width: 5.625, style: { ...cellCenterStyle, ...commaStyle } },
           { header: '長A', key: 'lenA', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
-          { header: '型狀/長度B', key: 'lenB', width: 15.625, style: { ...cellCenterStyle, ...commaStyle } },
+          {
+            header: '型狀/長度B',
+            key: 'lenB',
+            width: 15.625,
+            style: { ...cellCenterStyle, ...commaStyle },
+          },
           { header: '長C', key: 'lenC', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
           { header: '總長度', key: 'tLen', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
           { header: '支數', key: 'count', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
@@ -556,6 +561,13 @@ module.exports = async (e, data) => {
             row.border = {
               bottom: { style: 'thin' },
             }
+            row.height = 25.2 // 有圖片那行 20.1
+          }
+          // 內容左右欄位要線
+          row.border = {
+            ...row.border,
+            left: { style: 'thin' },
+            right: { style: 'thin' },
           }
         })
 
@@ -571,7 +583,7 @@ module.exports = async (e, data) => {
         sheet.insertRows(1, headerRows)
 
         sheet.mergeCells('D1', 'H1')
-        sheet.mergeCells('A3', 'C3')
+        sheet.mergeCells('A3', 'D3')
         sheet.getRow(1).height = 25.5
 
         //#endregion
@@ -585,11 +597,7 @@ module.exports = async (e, data) => {
               extension: 'png',
             })
 
-            sheet.addImage(image, {
-              tl: { col: 4.2, row: i + 4 }, // 左上點 右上點
-              br: { col: 4.9, row: i + 4.9 }, // 左下點 右下點
-              editAs: 'oneCell',
-            })
+            sheet.addImage(image, `E${i + 5}:E${i + 5}`)
           }
         })
         //#endregion
@@ -628,6 +636,14 @@ module.exports = async (e, data) => {
         sheet.getRow(lastSecRow).border = {
           top: { style: 'medium' },
           bottom: { style: 'thin' },
+          right: { style: 'thin' },
+          left: { style: 'thin' },
+        }
+
+        // 6-1-1 設定 footer 最後一行左右 border
+        sheet.getRow(lastRow).border = {
+          right: { style: 'thin' },
+          left: { style: 'thin' },
         }
 
         // 6-2 設定整張外框 border
@@ -661,18 +677,6 @@ module.exports = async (e, data) => {
         win.webContents.send('material-file', content)
       })
 
-      // dialog
-      //   .showSaveDialog({
-      //     defaultPath: path.join(__dirname, '料單.xlsx'),
-      //     buttonLabel: '存檔',
-      //     filters: [{ name: 'Excel 活頁簿', extensions: ['xlsx'] }],
-      //   })
-      //   .then((resolve) => {
-      //     const { canceled, filePath } = resolve
-      //     if (!canceled) {
-      //       workbook.xlsx.writeFile(filePath)
-      //     }
-      //   })
       //#endregion
     }
 
