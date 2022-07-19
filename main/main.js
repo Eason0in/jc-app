@@ -1,6 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem } = require('electron')
 const path = require('path')
-const Excel = require('exceljs')
 const { autoUpdater } = require('electron-updater')
 const readFile = require('./readFile')
 const isDev = require('electron-is-dev')
@@ -30,11 +29,23 @@ const createWindow = () => {
 const menu = new Menu()
 menu.append(
   new MenuItem({
-    label: '查看版本',
+    label: '版本',
     click: () => {
       const dialogOpts = {
         type: 'info',
         detail: `此版本為 ${app.getVersion()}`,
+      }
+      dialog.showMessageBox(dialogOpts)
+    },
+  })
+)
+menu.append(
+  new MenuItem({
+    label: '使用到期日',
+    click: () => {
+      const dialogOpts = {
+        type: 'info',
+        detail: `使用到期日為 ${ExpirationDate}`,
       }
       dialog.showMessageBox(dialogOpts)
     },
