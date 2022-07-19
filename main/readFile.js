@@ -27,23 +27,21 @@ module.exports = async (e, data) => {
     const lineTwenSixObj = getStatsObj(workbook.getWorksheet('統計'), 25, 26)
     const lineTwenSevenObj = getStatsObj(workbook.getWorksheet('統計'), 25, 27)
 
-    //#region dataS
+    //#region 資料集
     let ws = ''
 
     const sheetObj = { a: [], car: [], stirrups: [], others: [] }
 
-    const aObj = {} // 直料 放進去資料格式 { num, tNo, lenB, count, lenA}
-    const carObj = {} // 車牙料 放進去資料格式 { num, tNo, lenB, count, lenA}
-    let stirrupsObj = {} // 彎料 放進去資料格式 { num, tNo, lenB, lenA, count, lenC, tLen }
-
     const othersObj = {} // 箍筋, 馬椅, 斜撐, 腰筋  放進去資料格式 { num, tNo, lenB, lenA, count, lenC, tLen }
 
+    // 歸整前 a 直料 car 車牙料  stirrups彎料
     const needTidyObj = {
       a: {},
       stirrups: {},
       car: {},
     }
 
+    // 歸整後 a 直料 car 車牙料  stirrups彎料
     const tidiedObj = {
       a: [],
       stirrups: [],
@@ -52,8 +50,9 @@ module.exports = async (e, data) => {
 
     //#endregion
 
+    // 將資料讀進 needTidyObj
     const handleBars = ({ s, l }) => {
-      // 抓主筋 (沒有 #x 要補的數字)
+      // 抓沒有 #x 要補的數字
       const mainBar = `#${ws.getCell('D4').value}`
 
       for (let i = s; i < s + l; i++) {
@@ -65,7 +64,6 @@ module.exports = async (e, data) => {
 
           const lenB = row.getCell(colNumber + 1).result
           const condS = lenB && typeof lenB === 'number'
-          // }
 
           const count = row.getCell(colNumber + 2).result || row.getCell(colNumber + 2).value
           const regex = new RegExp('x', 'gi')
@@ -93,9 +91,6 @@ module.exports = async (e, data) => {
             const key = `${num}_${tNo}_${lenB}`
             const { a, stirrups, car } = needTidyObj
             if (tNo === 'A') {
-              // const isNeedRemark = i === 33 // 讀到 33 腰筋搭接 備註加 腰筋
-              // if (isNeedRemark) obj.remark = '腰筋'
-
               if (a[key]) {
                 a[key].count += obj.count
               } else {
@@ -127,28 +122,13 @@ module.exports = async (e, data) => {
                 stirrups[key] = obj
               }
             }
-            // else if (tNo === 'ID') {
-            //   // 馬椅另外處理 因為它屬於彎料但又不在 line 29-33
-            //   const [lenB, lenA] = lenB.split('X')
-            //   obj.lenB = lenB
-            //   obj.lenA = lenA
-            //   obj.lenC = lineNightObj[obj.num]
-            //   // 計算總長度 馬椅算法：A*2 + C*2 +B
-            //   obj.tLen = handleStringSum(lenA * 2, lineNightObj[obj.num] * 2, lenB)
-            //   const key = `${obj.num}_${obj.tNo}_${lenB}_${lenA}`
-            //   if (stirrupsObj[key]) {
-            //     stirrupsObj[key].count += obj.count
-            //   } else {
-            //     stirrupsObj[key] = obj
-            //   }
-            // }
           }
         })
       }
     }
 
     const handleOthers = (linesArr) => {
-      // 抓主筋 (沒有 #x 要補的數字)
+      // 抓沒有 #x 要補的數字
       const mainBar = `#${ws.getCell('D4').value}`
       const [twentySeven, twentyNight, thirtyThree] = linesArr
 
@@ -314,34 +294,28 @@ module.exports = async (e, data) => {
       //#endregion
     }
 
-    //#region 將資料塞到 aObj carObj stirrupsObj
+    // 將資料塞到 needTidyObj(直 彎 車)，othersObj(箍 腰 馬椅 斜撐)
     const handleSheet = () => {
-      // // 除了箍筋之外的鋼筋 讀20~28 + 33~43
-      // const otherBarrangeArr = [
-      //   { s: 20, l: 9 },
-      //   { s: 33, l: 11 },
-      // ]
-      // otherBarrangeArr.forEach(handleBars)
-
-      // 20~26 , 34~43 直 彎 車
+      //#region 直 彎 車 讀20~28 + 33~43
       const needTidyArr = [
         { s: 20, l: 7 },
         { s: 34, l: 10 },
       ]
       needTidyArr.forEach(handleBars)
+      //#endregion
 
-      //  27-馬椅 斜撐 29-箍筋 33-腰筋 讀 27 29 33 行
+      //#region 馬椅 斜撐 箍筋 腰筋 讀 27 29 33 行
       const othersRangeArr = [27, 29, 33]
       handleOthers(othersRangeArr)
+      //#endregion
     }
-    //#endregion
 
     const handleTidy = () => {
       Object.entries(needTidyObj).forEach(([key, arr]) => {
         // 用號數分類，並做排序
         const arrangeObj = Object.values(arr)
           .sort((pre, next) => next.lenB - pre.lenB)
-          .sort((pre, next) => (next.num > pre.num ? -1 : 1))
+          .sort((pre, next) => +next.num.replace('#', '') - +pre.num.replace('#', ''))
           .reduce((obj, item) => {
             const { num } = item
             return {
