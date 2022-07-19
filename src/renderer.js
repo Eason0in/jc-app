@@ -3,8 +3,6 @@ const materialFile = document.getElementById('materialFile')
 const tidyFile = document.getElementById('tidyFile')
 const constructionFile = document.getElementById('constructionFile')
 
-// const insertFile = document.getElementById('insertInput')
-
 const btnClear = document.getElementById('btnClear')
 const selectRange = document.getElementById('range')
 
@@ -13,11 +11,6 @@ inputFile.addEventListener('change', (e) => {
   const data = { filePath: file.path, range: +selectRange.value }
   window.electronAPI.readFile(data)
 })
-
-// insertFile.addEventListener('change', (e) => {
-//   const [file] = e.target.files
-//   window.electronAPI.insertFile(file.path)
-// })
 
 window.electronAPI.sendTidyFile((event, content) => {
   const blobData = new Blob([content], {
@@ -55,3 +48,12 @@ btnClear.addEventListener('click', (e) => {
   constructionFile.href = ''
   constructionFile.innerText = ''
 })
+
+// //#region insertFile
+// const insertFile = document.getElementById('insertInput')
+
+// insertFile.addEventListener('change', (e) => {
+//   const [file] = e.target.files
+//   window.electronAPI.insertFile(file.path)
+// })
+// //#endregion
