@@ -62,7 +62,7 @@ module.exports = async (e, data) => {
           const tNo = resultOrValue ? typeof resultOrValue === 'string' && resultOrValue.toUpperCase() : undefined
           const condF = tNo && numMap.has(tNo)
 
-          const lenB = row.getCell(colNumber + 1).result
+          const lenB = row.getCell(colNumber + 1).result || row.getCell(colNumber + 1).value
           const condS = lenB && typeof lenB === 'number'
 
           const count = row.getCell(colNumber + 2).result || row.getCell(colNumber + 2).value
@@ -145,11 +145,11 @@ module.exports = async (e, data) => {
         let lenA = ''
         // 馬椅 第二個條件要判斷分解後的 lenB lenA
         if (tNo === 'ID') {
-          second = twentySevenRow.getCell(colNumber + 1).result
+          second = twentySevenRow.getCell(colNumber + 1).result || twentySevenRow.getCell(colNumber + 1).value
           ;[lenB, lenA] = second.split('X')
           condS = second && lenB && lenA
         } else {
-          lenB = twentySevenRow.getCell(colNumber + 1).result
+          lenB = twentySevenRow.getCell(colNumber + 1).result || twentySevenRow.getCell(colNumber + 1).value
           condS = lenB && typeof lenB === 'number'
         }
 
