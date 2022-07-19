@@ -77,35 +77,31 @@ module.exports = async (e, data) => {
               num = zero
             }
 
+            const sheetName = ws.name
+            const sheetAddress = row.getCell(colNumber + 1)._address
+
             const obj = {
               num,
               tNo,
               lenB,
               count: +count.replace(/X|x/gi, ''),
               lenA: '',
-              sheetName: ws.name,
-              sheetAddress: row.getCell(colNumber + 1)._address,
+              sheetName,
+              sheetAddress,
             }
 
-            // #10_A_750
-            const key = `${num}_${tNo}_${lenB}`
+            // #10_A_750_Y02_P43
+            const key = `${num}_${tNo}_${lenB}_${sheetName}_${sheetAddress}`
             const { a, stirrups, car } = needTidyObj
             if (tNo === 'A') {
-              if (a[key]) {
-                a[key].count += obj.count
-              } else {
-                a[key] = obj
-              }
+              a[key] = obj
             } else if (numMap.get(tNo) === '車牙料') {
               // CD CE FC 有長度A 讀統計 sheet line 9 對應 #X
               if (carTeethHasLenA.includes(tNo)) {
                 obj.lenA = lineNightObj[obj.num]
               }
-              if (car[key]) {
-                car[key].count += obj.count
-              } else {
-                car[key] = obj
-              }
+
+              car[key] = obj
             } else if (numMap.get(tNo) === '彎料') {
               // AC 有長度C 讀統計 sheet line 9 對應 #X
               // CC 有長度A、C 讀統計 sheet line 9 對應 #X
@@ -116,11 +112,7 @@ module.exports = async (e, data) => {
                 obj.lenC = lineNightObj[obj.num]
               }
 
-              if (stirrups[key]) {
-                stirrups[key].count += obj.count
-              } else {
-                stirrups[key] = obj
-              }
+              stirrups[key] = obj
             }
           }
         })
