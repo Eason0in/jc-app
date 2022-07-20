@@ -1,53 +1,108 @@
-const inputFile = document.getElementById('readInput')
-const materialFile = document.getElementById('materialFile')
-const tidyFile = document.getElementById('tidyFile')
-const constructionFile = document.getElementById('constructionFile')
+//#region 樑
+const beamReadInput = document.getElementById('beamReadInput')
+const beamMaterialFile = document.getElementById('beamMaterialFile')
+const beamTidyFile = document.getElementById('beamTidyFile')
+const beamConstructionFile = document.getElementById('beamConstructionFile')
 
-const btnClear = document.getElementById('btnClear')
-const selectRange = document.getElementById('range')
+const beamBtnClear = document.getElementById('beamBtnClear')
+const selectBeamRange = document.getElementById('beamRange')
 
-inputFile.addEventListener('change', (e) => {
+beamReadInput.addEventListener('change', (e) => {
   const [file] = e.target.files
-  const data = { filePath: file.path, range: +selectRange.value }
-  window.electronAPI.readFile(data)
+  const data = { filePath: file.path, range: +selectBeamRange.value }
+  window.electronAPI.beamReadFile(data)
 })
 
-window.electronAPI.sendTidyFile((event, content) => {
+window.electronAPI.sendBeamTidyFile((event, content) => {
   const blobData = new Blob([content], {
     type: 'application/vnd.ms-excel;charset=utf-8;',
   })
 
-  tidyFile.href = URL.createObjectURL(blobData)
-  tidyFile.innerText = '歸整.xlsx'
+  beamTidyFile.href = URL.createObjectURL(blobData)
+  beamTidyFile.innerText = '歸整.xlsx'
 })
 
-window.electronAPI.sendMaterialFile((event, content) => {
+window.electronAPI.sendBeamMaterialFile((event, content) => {
   const blobData = new Blob([content], {
     type: 'application/vnd.ms-excel;charset=utf-8;',
   })
 
-  materialFile.href = URL.createObjectURL(blobData)
-  materialFile.innerText = '料單.xlsx'
+  beamMaterialFile.href = URL.createObjectURL(blobData)
+  beamMaterialFile.innerText = '料單.xlsx'
 })
 
-window.electronAPI.sendConstructionFile((event, content) => {
+window.electronAPI.sendBeamConstructionFile((event, content) => {
   const blobData = new Blob([content], {
     type: 'application/vnd.ms-excel;charset=utf-8;',
   })
 
-  constructionFile.href = URL.createObjectURL(blobData)
-  constructionFile.innerText = '歸整後施工圖.xlsx'
+  beamConstructionFile.href = URL.createObjectURL(blobData)
+  beamConstructionFile.innerText = '歸整後施工圖.xlsx'
 })
 
-btnClear.addEventListener('click', (e) => {
-  inputFile.value = ''
-  materialFile.href = ''
-  materialFile.innerText = ''
-  tidyFile.href = ''
-  tidyFile.innerText = ''
-  constructionFile.href = ''
-  constructionFile.innerText = ''
+beamBtnClear.addEventListener('click', (e) => {
+  beamReadInput.value = ''
+  beamMaterialFile.href = ''
+  beamMaterialFile.innerText = ''
+  beamTidyFile.href = ''
+  beamTidyFile.innerText = ''
+  beamConstructionFile.href = ''
+  beamConstructionFile.innerText = ''
 })
+//#endregion
+
+//#region 柱
+const columnReadInput = document.getElementById('columnReadInput')
+const columnMaterialFile = document.getElementById('beamMaterialFile')
+// const beamTidyFile = document.getElementById('beamTidyFile')
+// const beamConstructionFile = document.getElementById('beamConstructionFile')
+
+const columnBtnClear = document.getElementById('beamBtnClear')
+// const selectBeamRange = document.getElementById('beamRange')
+
+columnReadInput.addEventListener('change', (e) => {
+  const [file] = e.target.files
+  const data = { filePath: file.path }
+  window.electronAPI.columnReadFile(data)
+})
+
+// window.electronAPI.sendBeamTidyFile((event, content) => {
+//   const blobData = new Blob([content], {
+//     type: 'application/vnd.ms-excel;charset=utf-8;',
+//   })
+
+//   beamTidyFile.href = URL.createObjectURL(blobData)
+//   beamTidyFile.innerText = '歸整.xlsx'
+// })
+
+window.electronAPI.sendColumnMaterialFile((event, content) => {
+  const blobData = new Blob([content], {
+    type: 'application/vnd.ms-excel;charset=utf-8;',
+  })
+
+  columnMaterialFile.href = URL.createObjectURL(blobData)
+  columnMaterialFile.innerText = '料單.xlsx'
+})
+
+// window.electronAPI.sendBeamConstructionFile((event, content) => {
+//   const blobData = new Blob([content], {
+//     type: 'application/vnd.ms-excel;charset=utf-8;',
+//   })
+
+//   beamConstructionFile.href = URL.createObjectURL(blobData)
+//   beamConstructionFile.innerText = '歸整後施工圖.xlsx'
+// })
+
+columnBtnClear.addEventListener('click', (e) => {
+  columnReadInput.value = ''
+  columnMaterialFile.href = ''
+  columnMaterialFile.innerText = ''
+  // beamTidyFile.href = ''
+  // beamTidyFile.innerText = ''
+  // beamConstructionFile.href = ''
+  // beamConstructionFile.innerText = ''
+})
+//#endregion
 
 // //#region insertFile
 // const insertFile = document.getElementById('insertInput')

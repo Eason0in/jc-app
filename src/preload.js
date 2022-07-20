@@ -1,13 +1,19 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  readFile: (filePath) => {
-    ipcRenderer.invoke('read-file', filePath)
+  beamReadFile: (filePath) => {
+    ipcRenderer.invoke('beam-read-file', filePath)
   },
+  sendBeamTidyFile: (callback) => ipcRenderer.on('beam-tidy-file', callback),
+  sendBeamMaterialFile: (callback) => ipcRenderer.on('beam-material-file', callback),
+  sendBeamConstructionFile: (callback) => ipcRenderer.on('beam-construction-file', callback),
+
   insertFile: (filePath) => {
     ipcRenderer.invoke('insert-file', filePath)
   },
-  sendTidyFile: (callback) => ipcRenderer.on('tidy-file', callback),
-  sendMaterialFile: (callback) => ipcRenderer.on('material-file', callback),
-  sendConstructionFile: (callback) => ipcRenderer.on('construction-file', callback),
+
+  columnReadFile: (filePath) => {
+    ipcRenderer.invoke('column-read-file', filePath)
+  },
+  sendColumnMaterialFile: (callback) => ipcRenderer.on('column-material-file', callback),
 })

@@ -1,12 +1,14 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem } = require('electron')
 const path = require('path')
 const { autoUpdater } = require('electron-updater')
-const readFile = require('./readFile')
+const beamReadFile = require('./beamReadFile')
+const columnReadFile = require('./columnReadFile')
 const isDev = require('electron-is-dev')
 
 const ExpirationDate = '2022/11/01'
 
-ipcMain.handle('read-file', readFile)
+ipcMain.handle('beam-read-file', beamReadFile)
+ipcMain.handle('column-read-file', columnReadFile)
 
 const createWindow = () => {
   const win = new BrowserWindow({

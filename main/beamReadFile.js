@@ -640,7 +640,7 @@ module.exports = async (e, data) => {
 
       //#region 產生檔案
       workbook.xlsx.writeBuffer().then((content) => {
-        win.webContents.send('material-file', content)
+        win.webContents.send('beam-material-file', content)
       })
 
       //#endregion
@@ -684,7 +684,7 @@ module.exports = async (e, data) => {
 
       //#region 將檔案轉成 buffer 丟到前面
       workbook.xlsx.writeBuffer().then((content) => {
-        win.webContents.send('tidy-file', content)
+        win.webContents.send('beam-tidy-file', content)
       })
 
       // dialog
@@ -712,7 +712,7 @@ module.exports = async (e, data) => {
 
       // 產生檔案
       workbook.xlsx.writeBuffer().then((content) => {
-        win.webContents.send('construction-file', content)
+        win.webContents.send('beam-construction-file', content)
       })
     }
 

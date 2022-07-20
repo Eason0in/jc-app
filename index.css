@@ -1,4 +1,13 @@
 .container{
-  width: 400px;
+  width: 500px;
   margin: 50px auto;
+
+  
+  
 }
+
+section {
+  display: flex;
+  column-gap: 50px;
+}
+
