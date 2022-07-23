@@ -1,27 +1,42 @@
 {
   "name": "calculate-building",
   "version": "0.0.8",
-  "main": "./main/main.js",
+  "main": "./public/electron.js",
   "author": "Eason",
   "license": "MIT",
   "description": "calculate building",
+  "homepage": "./",
   "scripts": {
-    "start": "electron .",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder",
-    "publish": "electron-builder --win -p always"
+    "build": "react-scripts build",
+    "pack": "yarn build && electron-builder --dir -w -c.extraMetadata.main=build/electron.js",
+    "dist": "yarn build && electron-builder  -w -c.extraMetadata.main=build/electron.js",
+    "publish": "yarn build && electron-builder  -w -c.extraMetadata.main=build/electron.js --win -p always",
+    "start": "concurrently \"cross-env BROWSER=none  react-scripts start\"  \"wait-on tcp:3000 && electron .\""
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "electron": "^19.0.4",
-    "electron-builder": "^23.0.3"
+    "electron-builder": "^23.0.3",
+    "wait-on": "^6.0.1"
   },
   "dependencies": {
+    "concurrently": "^7.3.0",
     "electron-is-dev": "^2.0.0",
     "electron-updater": "^5.0.1",
-    "exceljs": "^4.3.0"
+    "exceljs": "^4.3.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-scripts": "5.0.1"
   },
   "build": {
     "appId": "com.calculate-building",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "public"
+    },
     "win": {
       "target": "nsis",
       "publish": [
@@ -36,5 +51,13 @@
   "devEngines": {
     "node": ">=16.x",
     "yarn": ">=1.22.x"
+  },
+  "browserslist": {
+    "production": [
+      "last 1 electron version"
+    ],
+    "development": [
+      "last 1 electron version"
+    ]
   }
 }

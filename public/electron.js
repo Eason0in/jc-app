@@ -15,17 +15,23 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, '../src/preload.js'),
+      preload: path.join(__dirname, './preload.js'),
     },
   })
-  win.loadFile('index.html')
-  // win.once('ready-to-show', win.show)
 
-  if (!isDev) {
-    autoUpdater.checkForUpdates()
-  } else {
+  if (isDev) {
+    // 開發階段直接與 React 連線
+    win.loadURL('http://localhost:3000/')
+    // 開啟 DevTools.
     win.webContents.openDevTools()
+  } else {
+    // 產品階段直接讀取 React 打包好的
+    win.loadFile('./build/index.html')
+    autoUpdater.checkForUpdates()
   }
+
+  // win.loadFile('index.html')
+  // win.once('ready-to-show', win.show)
 }
 
 const menu = new Menu()

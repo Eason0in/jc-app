@@ -2,7 +2,7 @@ const { dialog, BrowserWindow } = require('electron')
 const path = require('path')
 const Excel = require('exceljs')
 
-const { numMap, rowInit, carTeethHasLenA, carTeethMap, COF, lineNightObj } = require('../src/data')
+const { numMap, rowInit, carTeethHasLenA, carTeethMap, COF, lineNightObj } = require('./data')
 const {
   createOuterBorder,
   cellCenterStyle,
@@ -11,7 +11,7 @@ const {
   handleSort,
   commaStyle,
   othersFormula,
-} = require('../src/util')
+} = require('./util')
 
 const sheetNameObj = {
   car: '車牙',

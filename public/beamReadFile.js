@@ -11,7 +11,7 @@ const {
   lineNightObj,
   lineTwenSixObj,
   lineTwenSevenObj,
-} = require('../src/data')
+} = require('./data')
 const {
   createOuterBorder,
   cellCenterStyle,
@@ -21,7 +21,7 @@ const {
   handleSort,
   handleOthersSort,
   commaStyle,
-} = require('../src/util')
+} = require('./util')
 
 const sheetNameObj = {
   a: '直料',
