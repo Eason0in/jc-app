@@ -31,8 +31,8 @@
   "build": {
     "appId": "com.calculate-building",
     "files": [
-      "build/**/*",
-      "node_modules/**/*"
+      "build",
+      "node_modules"
     ],
     "directories": {
       "buildResources": "public"
