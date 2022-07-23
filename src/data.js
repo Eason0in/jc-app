@@ -148,10 +148,6 @@ const carTeethMap = new Map([
 
 const carTeethHasLenA = ['CD', 'CE', 'FC']
 const AMap = new Map([['A', '直料']])
-const ACandCCMap = new Map([
-  ['AC', '彎料'],
-  ['CC', '彎料'],
-])
 
 const numMap = (() => {
   const resultMap = new Map()
@@ -166,12 +162,6 @@ const numMap = (() => {
   return resultMap
 })()
 
-const obj = {
-  雙: 2,
-  三: 3,
-  單: 1,
-}
-
 const rowInit = {
   no: '', //編號
   tNo: '', //組編號
@@ -185,13 +175,6 @@ const rowInit = {
   remark: '', //備註
 }
 
-const sheetNameObj = {
-  a: '直料',
-  car: '車牙',
-  stirrups: '彎料',
-  others: '馬椅,斜撐,箍筋,腰筋',
-}
-
 const COF = {
   '#3': 0.0056,
   '#4': 0.00994,
@@ -203,4 +186,71 @@ const COF = {
   '#11': 0.079,
 }
 
-module.exports = { numMap, obj, rowInit, sheetNameObj, carTeethHasLenA, carTeethMap, COF }
+// 主筋彎鉤長 90 度
+const lineNightObj = {
+  '#3': 15,
+  '#4': 20,
+  '#5': 25,
+  '#6': 30,
+  '#7': 35,
+  '#8': 40,
+  '#9': 45,
+  '#10': 50,
+  '#11': 56,
+}
+
+// 箍筋彎鉤長 90 度
+const lineTwenSixObj = {
+  '#3': 10,
+  '#4': 13,
+  '#5': 16,
+  '#6': 30,
+  '#7': 35,
+  '#8': 40,
+  '#9': 45,
+  '#10': 50,
+  '#11': 56,
+}
+
+// 箍筋彎鉤長 135 度
+const lineTwenSevenObj = {
+  '#3': 10,
+  '#4': 14,
+  '#5': 17,
+  '#6': 20,
+  '#7': 23,
+  '#8': 27,
+  '#9': 30,
+  '#10': 34,
+  '#11': 37,
+}
+
+// 箍筋彎鉤長 180 度
+const lineTwenEightObj = {
+  '#3': 10,
+  '#4': 14,
+  '#5': 17,
+  '#6': 20,
+  '#7': 23,
+  '#8': 27,
+  '#9': 30,
+  '#10': 34,
+  '#11': 37,
+}
+const order = {
+  直料: 1,
+  彎料: 2,
+  車牙料: 3,
+}
+module.exports = {
+  numMap,
+  rowInit,
+  carTeethHasLenA,
+  carTeethMap,
+  COF,
+  lineNightObj,
+  lineTwenSixObj,
+  lineTwenSevenObj,
+  lineTwenEightObj,
+  order,
+}

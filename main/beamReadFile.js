@@ -2,7 +2,16 @@ const { dialog, BrowserWindow } = require('electron')
 const path = require('path')
 const Excel = require('exceljs')
 
-const { numMap, obj, rowInit, sheetNameObj, carTeethHasLenA, carTeethMap, COF } = require('../src/data')
+const {
+  numMap,
+  rowInit,
+  carTeethHasLenA,
+  carTeethMap,
+  COF,
+  lineNightObj,
+  lineTwenSixObj,
+  lineTwenSevenObj,
+} = require('../src/data')
 const {
   createOuterBorder,
   cellCenterStyle,
@@ -14,6 +23,13 @@ const {
   commaStyle,
 } = require('../src/util')
 
+const sheetNameObj = {
+  a: '直料',
+  car: '車牙',
+  stirrups: '彎料',
+  others: '馬椅,斜撐,箍筋,腰筋',
+}
+
 module.exports = async (e, data) => {
   try {
     const webContents = e.sender
@@ -23,9 +39,9 @@ module.exports = async (e, data) => {
     await workbook.xlsx.readFile(filePath)
     const buildName = workbook.getWorksheet('統計').getCell('D13').value
     const floorName = workbook.getWorksheet('統計').getCell('D14').value
-    const lineNightObj = getStatsObj(workbook.getWorksheet('統計'), 4, 9)
-    const lineTwenSixObj = getStatsObj(workbook.getWorksheet('統計'), 25, 26)
-    const lineTwenSevenObj = getStatsObj(workbook.getWorksheet('統計'), 25, 27)
+    // const lineNightObj = getStatsObj(workbook.getWorksheet('統計'), 4, 9)
+    // const lineTwenSixObj = getStatsObj(workbook.getWorksheet('統計'), 25, 26)
+    // const lineTwenSevenObj = getStatsObj(workbook.getWorksheet('統計'), 25, 27)
 
     //#region 資料集
     let ws = ''
@@ -232,7 +248,6 @@ module.exports = async (e, data) => {
         } else {
           othersObj[key] = { num, tNo, lenB, lenA, count, tLen }
         }
-        return obj
       })
 
       hatArr.forEach(([num, tNo, lenB, lenA, count, lenC]) => {
@@ -244,8 +259,6 @@ module.exports = async (e, data) => {
         } else {
           othersObj[key] = { num, tNo, lenB, lenA, count, lenC, tLen }
         }
-
-        return obj
       })
 
       //#endregion

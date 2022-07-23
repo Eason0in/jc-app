@@ -53,11 +53,11 @@ beamBtnClear.addEventListener('click', (e) => {
 
 //#region 柱
 const columnReadInput = document.getElementById('columnReadInput')
-const columnMaterialFile = document.getElementById('beamMaterialFile')
+const columnMaterialFile = document.getElementById('columnMaterialFile')
 // const beamTidyFile = document.getElementById('beamTidyFile')
 // const beamConstructionFile = document.getElementById('beamConstructionFile')
 
-const columnBtnClear = document.getElementById('beamBtnClear')
+const columnBtnClear = document.getElementById('columnBtnClear')
 // const selectBeamRange = document.getElementById('beamRange')
 
 columnReadInput.addEventListener('change', (e) => {
@@ -97,10 +97,6 @@ columnBtnClear.addEventListener('click', (e) => {
   columnReadInput.value = ''
   columnMaterialFile.href = ''
   columnMaterialFile.innerText = ''
-  // beamTidyFile.href = ''
-  // beamTidyFile.innerText = ''
-  // beamConstructionFile.href = ''
-  // beamConstructionFile.innerText = ''
 })
 //#endregion
 

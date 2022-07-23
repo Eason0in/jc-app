@@ -1,4 +1,4 @@
-const { numMap } = require('./data')
+const { numMap, order, lineTwenSixObj, lineTwenSevenObj, lineTwenEightObj } = require('./data')
 const createOuterBorder = (worksheet, start = { row: 1, col: 1 }, end = { row: 1, col: 1 }, borderWidth = 'medium') => {
   const borderStyle = {
     style: borderWidth,
@@ -101,7 +101,7 @@ const getSumRow = (dataArr) => {
 
 /**
  * 排序方式  程式先從第三順序開始排
-  1: 組編號 直料->彎料 tNo
+  1: 組編號 直料->彎料->車牙 tNo
   2: 號數 由大到小 num
   3: 總長度 長到短 tLen
  * @param {array} objFillTLenArr 
@@ -109,8 +109,8 @@ const getSumRow = (dataArr) => {
 const handleSort = (objFillTLenArr) => {
   const orderList = [
     (pre, next) => next.tLen - pre.tLen,
-    (pre, next) => (next.num > pre.num ? 1 : -1),
-    (pre, next) => (numMap.get(next.tNo) > numMap.get(pre.tNo) ? 1 : -1),
+    (pre, next) => +next.num.replace('#', '') - +pre.num.replace('#', ''),
+    (pre, next) => order[numMap.get(pre.tNo)] - order[numMap.get(next.tNo)],
   ]
   for (const fun of orderList) {
     objFillTLenArr.sort(fun)
@@ -128,15 +128,63 @@ const handleSort = (objFillTLenArr) => {
  */
 const handleOthersSort = (objFillTLenArr) => {
   const orderList = [
-    (pre, next) => pre.tLen - next.tLen,
-    (pre, next) => (next.num > pre.num ? -1 : 1),
-    (pre, next) => (next.tNo > pre.tNo ? -1 : 1),
-    (pre, next) => (numMap.get(next.tNo) > numMap.get(pre.tNo) ? 1 : -1),
+    (pre, next) => next.tLen - pre.tLen,
+    (pre, next) => +next.num.replace('#', '') - +pre.num.replace('#', ''),
+    (pre, next) => next.tNo > pre.tNo,
+    (pre, next) => order[numMap.get(pre.tNo)] - order[numMap.get(next.tNo)],
   ]
   for (const fun of orderList) {
     objFillTLenArr.sort(fun)
   }
   return objFillTLenArr
+}
+
+//柱- 箍筋 繫筋 計算公式
+const othersFormula = (tNo, lenA, lenB, lenC, num) => {
+  switch (tNo) {
+    case 'F': // (A + B) * 2 +  135*2
+      return handleStringSum(lenA * 2, lenB * 2, lineTwenSevenObj[num] * 2)
+
+    case 'GI': // (A + B) * 2 +  90*2
+      return handleStringSum(lenA * 2, lenB * 2, lineTwenSixObj[num] * 2)
+
+    case 'D': // A*2 + B +  135*2
+      return handleStringSum(lenA * 2, lenB, lineTwenSevenObj[num] * 2)
+
+    case 'GA': // A*2 + B +  180*2
+      return handleStringSum(lenA * 2, lenB, lineTwenEightObj[num] * 2)
+
+    case 'E': // B +  135 90
+      return handleStringSum(lenB, lineTwenSevenObj[num], lineTwenSixObj[num])
+
+    case 'CI': // B +  180 90
+      return handleStringSum(lenB, lineTwenEightObj[num], lineTwenSixObj[num])
+
+    case 'FE': // B +  135 *2
+      return handleStringSum(lenB, lineTwenSevenObj[num] * 2)
+
+    case 'FH': // B +  180*2
+      return handleStringSum(lenB, lineTwenEightObj[num] * 2)
+
+    case 'G': // A + B + C
+      return handleStringSum(lenA, lenB, lenC)
+
+    case 'B': // A + B + 135*2
+      return handleStringSum(lenA, lenB, lineTwenSevenObj[num] * 2)
+
+    case 'C': //  A + B + 135 90
+    case 'HA':
+      return handleStringSum(lenA, lenB, lineTwenSevenObj[num], lineTwenSixObj[num])
+
+    case 'GC': //  A + B + 180 90
+      return handleStringSum(lenA, lenB, lineTwenEightObj[num], lineTwenSixObj[num])
+
+    case 'GB': //  A*2 + B + 90
+      return handleStringSum(lenA * 2, lenB, lineTwenSixObj[num])
+
+    default:
+      return 0
+  }
 }
 
 module.exports = {
@@ -148,4 +196,5 @@ module.exports = {
   handleSort,
   handleOthersSort,
   commaStyle,
+  othersFormula,
 }
