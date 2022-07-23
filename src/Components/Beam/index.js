@@ -9,7 +9,7 @@ function Beam() {
   const [beamTidyFileA, setBeamTidyFileA] = useState('')
   const [beamConstructionFile, setBeamConstructionFile] = useState('')
   const [beamConstructionFileA, setBeamConstructionFileA] = useState('')
-  const [selectBeamRange, setSelectBeamRange] = useState('10')
+  const [selectBeamRange, setSelectBeamRange] = useState(10)
 
   const handleClear = () => {
     setBeamReadInput('')
@@ -23,7 +23,7 @@ function Beam() {
 
   const handleInputChange = (e) => {
     const [file] = e.target.files
-    const data = { filePath: file.path, range: +selectBeamRange.value }
+    const data = { filePath: file.path, range: selectBeamRange }
     window.electronAPI.beamReadFile(data)
   }
   const handleSelectChange = (e) => {

@@ -41,21 +41,6 @@ const commaStyle = {
   numFmt: '#,##0',
 }
 
-const getStatsObj = (worksheet, headerColNum, contentColNum) => {
-  const range = [3, 4, 5, 6, 7, 8, 9, 10, 11]
-  const headerRow = worksheet.getRow(headerColNum)
-  const contentRow = worksheet.getRow(contentColNum)
-  const resultObj = {}
-
-  range.forEach((col) => {
-    const key = headerRow.getCell(col)
-    const { value } = contentRow.getCell(col)
-    resultObj[key] = value
-  })
-
-  return resultObj
-}
-
 const handleStringSum = (...args) => {
   return args.reduce((sum, num) => (sum += +num), 0)
 }
@@ -190,7 +175,6 @@ const othersFormula = (tNo, lenA, lenB, lenC, num) => {
 module.exports = {
   createOuterBorder,
   cellCenterStyle,
-  getStatsObj,
   handleStringSum,
   getSumRow,
   handleSort,

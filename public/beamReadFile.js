@@ -15,7 +15,6 @@ const {
 const {
   createOuterBorder,
   cellCenterStyle,
-  getStatsObj,
   handleStringSum,
   getSumRow,
   handleSort,
@@ -39,9 +38,6 @@ module.exports = async (e, data) => {
     await workbook.xlsx.readFile(filePath)
     const buildName = workbook.getWorksheet('統計').getCell('D13').value
     const floorName = workbook.getWorksheet('統計').getCell('D14').value
-    // const lineNightObj = getStatsObj(workbook.getWorksheet('統計'), 4, 9)
-    // const lineTwenSixObj = getStatsObj(workbook.getWorksheet('統計'), 25, 26)
-    // const lineTwenSevenObj = getStatsObj(workbook.getWorksheet('統計'), 25, 27)
 
     //#region 資料集
     let ws = ''
