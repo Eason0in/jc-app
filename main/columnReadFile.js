@@ -2,24 +2,13 @@ const { dialog, BrowserWindow } = require('electron')
 const path = require('path')
 const Excel = require('exceljs')
 
-const {
-  numMap,
-  rowInit,
-  carTeethHasLenA,
-  carTeethMap,
-  COF,
-  lineNightObj,
-  lineTwenSixObj,
-  lineTwenSevenObj,
-} = require('../src/data')
+const { numMap, rowInit, carTeethHasLenA, carTeethMap, COF, lineNightObj } = require('../src/data')
 const {
   createOuterBorder,
   cellCenterStyle,
-  getStatsObj,
   handleStringSum,
   getSumRow,
   handleSort,
-  handleOthersSort,
   commaStyle,
   othersFormula,
 } = require('../src/util')
@@ -37,10 +26,6 @@ module.exports = async (e, data) => {
     const workbook = new Excel.Workbook()
     await workbook.xlsx.readFile(filePath)
     const buildName = 'test'
-    // const floorName = workbook.getWorksheet('統計').getCell('D14').value
-    // const lineNightObj = getStatsObj(workbook.getWorksheet('統計'), 4, 9);
-    // const lineTwenSixObj = getStatsObj(workbook.getWorksheet('統計'), 25, 26);
-    // const lineTwenSevenObj = getStatsObj(workbook.getWorksheet('統計'), 25, 27);
 
     //#region 資料集
     let ws = ''
@@ -48,6 +33,7 @@ module.exports = async (e, data) => {
     // car 車牙料 others 箍筋
     const sheetArr = { car: [], others: [] }
     const sheetObj = { car: {}, others: {} }
+    const sheetTidyArr = { car: [], others: [] }
 
     //#endregion
 
@@ -275,6 +261,8 @@ module.exports = async (e, data) => {
               imageName: `${tNo}.png`,
             }
           )
+
+          sheetTidyArr[key].push(value)
         })
       })
     }
@@ -292,12 +280,62 @@ module.exports = async (e, data) => {
       //#endregion
     }
 
+    const setSheetTidyToWB = (workbook) => {
+      Object.entries(sheetTidyArr).forEach(async ([key, dataArr]) => {
+        const sheet = workbook.addWorksheet(`柱-${sheetNameObj[key]}`) //在檔案中新增工作表
+
+        //#region step1 定義欄位
+        sheet.columns = [
+          { header: '組編號', key: 'tNo', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '號數', key: 'num', width: 5.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '長A', key: 'lenA', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          {
+            header: '長度B',
+            key: 'lenB',
+            width: 15.625,
+            style: { ...cellCenterStyle, ...commaStyle },
+          },
+          { header: '長C', key: 'lenC', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '支數', key: 'count', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+        ]
+
+        //#endregion
+
+        //#region step2 把內容資料先放進去並設定 border
+        // 將rows 加入 sheet
+        sheet.addRows(dataArr)
+
+        // 設定 border
+        sheet.eachRow(function (row) {
+          row.border = {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' },
+          }
+        })
+
+        //#endregion
+      })
+    }
+    const handleTidyWrite = async () => {
+      const workbook = new Excel.Workbook() // 創建試算表檔案
+
+      setSheetTidyToWB(workbook)
+
+      // 產生檔案
+      workbook.xlsx.writeBuffer().then((content) => {
+        win.webContents.send('column-tidy-file', content)
+      })
+    }
+
     workbook.eachSheet((sheet, id) => {
       ws = sheet
       handleSheet()
     })
 
     handleSortSheetObjToSheetArr() // 排序 並放進 sheetArr
+    handleTidyWrite() // 寫料單前先寫一個萃取整理後的資料
     handleWrite()
   } catch (error) {
     dialog.showErrorBox('錯誤', error.stack)

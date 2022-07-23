@@ -54,7 +54,7 @@ beamBtnClear.addEventListener('click', (e) => {
 //#region 柱
 const columnReadInput = document.getElementById('columnReadInput')
 const columnMaterialFile = document.getElementById('columnMaterialFile')
-// const beamTidyFile = document.getElementById('beamTidyFile')
+const columnTidyFile = document.getElementById('columnTidyFile')
 // const beamConstructionFile = document.getElementById('beamConstructionFile')
 
 const columnBtnClear = document.getElementById('columnBtnClear')
@@ -66,14 +66,14 @@ columnReadInput.addEventListener('change', (e) => {
   window.electronAPI.columnReadFile(data)
 })
 
-// window.electronAPI.sendBeamTidyFile((event, content) => {
-//   const blobData = new Blob([content], {
-//     type: 'application/vnd.ms-excel;charset=utf-8;',
-//   })
+window.electronAPI.sendColumnTidyFile((event, content) => {
+  const blobData = new Blob([content], {
+    type: 'application/vnd.ms-excel;charset=utf-8;',
+  })
 
-//   beamTidyFile.href = URL.createObjectURL(blobData)
-//   beamTidyFile.innerText = '歸整.xlsx'
-// })
+  columnTidyFile.href = URL.createObjectURL(blobData)
+  columnTidyFile.innerText = '萃取整理檔案.xlsx'
+})
 
 window.electronAPI.sendColumnMaterialFile((event, content) => {
   const blobData = new Blob([content], {
@@ -97,6 +97,8 @@ columnBtnClear.addEventListener('click', (e) => {
   columnReadInput.value = ''
   columnMaterialFile.href = ''
   columnMaterialFile.innerText = ''
+  columnTidyFile.href = ''
+  columnTidyFile.innerText = ''
 })
 //#endregion
 
