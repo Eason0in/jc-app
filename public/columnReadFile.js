@@ -1,6 +1,7 @@
 const { dialog, BrowserWindow } = require('electron')
 const path = require('path')
 const Excel = require('exceljs')
+const isDev = require('electron-is-dev')
 
 const { numMap, rowInit, carTeethHasLenA, carTeethMap, COF, lineNightObj } = require('./data')
 const {
@@ -167,7 +168,10 @@ module.exports = async (e, data) => {
         //#region step4 把內容的 image 補進去
         dataArr.forEach(({ imageName }, i) => {
           if (i % 2) {
-            const imagePath = path.join(__dirname, '../public/images', imageName)
+            const imagePath = isDev
+              ? path.join(__dirname, '../public/images', imageName)
+              : path.join(__dirname, './images', imageName)
+
             const image = workbook.addImage({
               filename: imagePath,
               extension: 'png',

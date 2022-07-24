@@ -11,7 +11,7 @@
     "pack": "yarn build && electron-builder --dir -w -c.extraMetadata.main=build/electron.js",
     "dist": "yarn build && electron-builder  -w -c.extraMetadata.main=build/electron.js",
     "publish": "yarn build && electron-builder  -w -c.extraMetadata.main=build/electron.js --win -p always",
-    "start": "concurrently \"cross-env BROWSER=none  react-scripts start\"  \"wait-on tcp:3000 && electron .\""
+    "start": "concurrently -k \"cross-env BROWSER=none  react-scripts start\"  \"wait-on tcp:3000 && electron .\""
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
