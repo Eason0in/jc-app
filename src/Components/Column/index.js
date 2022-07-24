@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import './index.css'
+import './index.scss'
 
 function Column() {
   const [columnReadInput, setColumnReadInput] = useState('')
@@ -42,25 +42,21 @@ function Column() {
 
   return (
     <section id="column">
-      <h2>柱</h2>
-      <div>
-        <input type="file" value={columnReadInput} onChange={handleInputChange} accept=".xlsx" />
-        <button onClick={handleClear}>清除</button>
-        <hr />
-        <label>檔案:</label>
-        <ul>
-          <li>
-            <a href={columnTidyFile} download="萃取整理檔案.xlsx">
-              {columnTidyFileA}
-            </a>
-          </li>
-          <li>
-            <a href={columnMaterialFile} download="料單.xlsx">
-              {columnMaterialFileA}
-            </a>
-          </li>
-        </ul>
-      </div>
+      <input type="file" value={columnReadInput} onChange={handleInputChange} accept=".xlsx" />
+      <button onClick={handleClear}>清除檔案</button>
+      <label className="fileName">檔案:</label>
+      <ul>
+        <li>
+          <a href={columnTidyFile} download="萃取整理檔案.xlsx">
+            {columnTidyFileA}
+          </a>
+        </li>
+        <li>
+          <a href={columnMaterialFile} download="料單.xlsx">
+            {columnMaterialFileA}
+          </a>
+        </li>
+      </ul>
     </section>
   )
 }

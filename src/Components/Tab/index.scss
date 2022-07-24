@@ -1,0 +1,26 @@
+section#tab {
+  ul {
+    display: inline-flex;
+    column-gap: 10px;
+    border-bottom: 1px rgb(104, 103, 103) solid;
+    li {
+      button {
+        font-size: 18px;
+        padding: 10px 40px;
+        border: 1px lightgray solid;
+        border-bottom: none;
+
+        background-color: white;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+
+      &.active {
+        button {
+          border-top: 3px red solid;
+        }
+      }
+    }
+  }
+}

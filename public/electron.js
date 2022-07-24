@@ -32,35 +32,44 @@ const createWindow = () => {
 
   // win.loadFile('index.html')
   // win.once('ready-to-show', win.show)
+
+  const menu = new Menu()
+  menu.append(
+    new MenuItem({
+      label: '版本',
+      click: () => {
+        const dialogOpts = {
+          type: 'info',
+          detail: `此版本為 ${app.getVersion()}`,
+        }
+        dialog.showMessageBox(dialogOpts)
+      },
+    })
+  )
+  menu.append(
+    new MenuItem({
+      label: '使用到期日',
+      click: () => {
+        const dialogOpts = {
+          type: 'info',
+          detail: `使用到期日為 ${ExpirationDate}`,
+        }
+        dialog.showMessageBox(dialogOpts)
+      },
+    })
+  )
+  menu.append(
+    new MenuItem({
+      label: 'Toggle Developer Tools',
+      accelerator: 'Ctrl++Shift+I',
+      click: () => {
+        win.webContents.toggleDevTools()
+      },
+    })
+  )
+
+  Menu.setApplicationMenu(menu)
 }
-
-const menu = new Menu()
-menu.append(
-  new MenuItem({
-    label: '版本',
-    click: () => {
-      const dialogOpts = {
-        type: 'info',
-        detail: `此版本為 ${app.getVersion()}`,
-      }
-      dialog.showMessageBox(dialogOpts)
-    },
-  })
-)
-menu.append(
-  new MenuItem({
-    label: '使用到期日',
-    click: () => {
-      const dialogOpts = {
-        type: 'info',
-        detail: `使用到期日為 ${ExpirationDate}`,
-      }
-      dialog.showMessageBox(dialogOpts)
-    },
-  })
-)
-
-Menu.setApplicationMenu(menu)
 
 const isValidDate = () => {
   if (isDev) return true

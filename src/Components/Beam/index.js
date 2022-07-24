@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import './index.css'
+import './index.scss'
 
 function Beam() {
   const [beamReadInput, setBeamReadInput] = useState('')
@@ -59,8 +59,8 @@ function Beam() {
 
   return (
     <section id="beam">
-      <h2>樑</h2>
-      <div>
+      <div className="range">
+        <label htmlFor="beamRange">歸整間距：</label>
         <select name="beamRange" id="beamRange" value={selectBeamRange} onChange={handleSelectChange}>
           <option value="10">10</option>
           <option value="20">20</option>
@@ -68,29 +68,30 @@ function Beam() {
           <option value="40">40</option>
           <option value="50">50</option>
         </select>
-
-        <input type="file" value={beamReadInput} onChange={handleInputChange} accept=".xlsx" />
-        <button onClick={handleClear}>清除</button>
-        <hr />
-        <label>檔案:</label>
-        <ul>
-          <li>
-            <a href={beamTidyFile} download="歸整.xlsx">
-              {beamTidyFileA}
-            </a>
-          </li>
-          <li>
-            <a href={beamMaterialFile} download="料單.xlsx">
-              {beamMaterialFileA}
-            </a>
-          </li>
-          <li>
-            <a href={beamConstructionFile} download="歸整後施工圖.xlsx">
-              {beamConstructionFileA}
-            </a>
-          </li>
-        </ul>
       </div>
+
+      <button onClick={handleClear}>清除檔案</button>
+
+      <input type="file" value={beamReadInput} onChange={handleInputChange} accept=".xlsx" />
+
+      <label className="fileName">檔案:</label>
+      <ul>
+        <li>
+          <a href={beamTidyFile} download="歸整.xlsx">
+            {beamTidyFileA}
+          </a>
+        </li>
+        <li>
+          <a href={beamMaterialFile} download="料單.xlsx">
+            {beamMaterialFileA}
+          </a>
+        </li>
+        <li>
+          <a href={beamConstructionFile} download="歸整後施工圖.xlsx">
+            {beamConstructionFileA}
+          </a>
+        </li>
+      </ul>
     </section>
   )
 }
