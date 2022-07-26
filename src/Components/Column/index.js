@@ -2,14 +2,12 @@ import { useState } from 'react'
 import './index.scss'
 
 function Column() {
-  const [columnReadInput, setColumnReadInput] = useState('')
   const [columnMaterialFileA, setColumnMaterialFileA] = useState('')
   const [columnMaterialFile, setColumnMaterialFile] = useState('')
   const [columnTidyFile, setColumnTidyFile] = useState('')
   const [columnTidyFileA, setColumnTidyFileA] = useState('')
 
   const handleClear = () => {
-    setColumnReadInput('')
     setColumnMaterialFile('')
     setColumnMaterialFileA('')
     setColumnTidyFile('')
@@ -42,7 +40,7 @@ function Column() {
 
   return (
     <section id="column">
-      <input type="file" value={columnReadInput} onChange={handleInputChange} accept=".xlsx" />
+      <input type="file" onChange={handleInputChange} accept=".xlsx" />
       <button onClick={handleClear}>清除檔案</button>
       <label className="fileName">檔案:</label>
       <ul>

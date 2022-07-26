@@ -2,7 +2,6 @@ import { useState } from 'react'
 import './index.scss'
 
 function Beam() {
-  const [beamReadInput, setBeamReadInput] = useState('')
   const [beamMaterialFileA, setBeamMaterialFileA] = useState('')
   const [beamMaterialFile, setBeamMaterialFile] = useState('')
   const [beamTidyFile, setBeamTidyFile] = useState('')
@@ -12,7 +11,6 @@ function Beam() {
   const [selectBeamRange, setSelectBeamRange] = useState(10)
 
   const handleClear = () => {
-    setBeamReadInput('')
     setBeamMaterialFile('')
     setBeamMaterialFileA('')
     setBeamTidyFile('')
@@ -72,7 +70,7 @@ function Beam() {
 
       <button onClick={handleClear}>清除檔案</button>
 
-      <input type="file" value={beamReadInput} onChange={handleInputChange} accept=".xlsx" />
+      <input type="file" onChange={handleInputChange} accept=".xlsx" />
 
       <label className="fileName">檔案:</label>
       <ul>
