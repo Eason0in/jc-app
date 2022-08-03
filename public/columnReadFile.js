@@ -9,7 +9,7 @@ const {
   cellCenterStyle,
   handleStringSum,
   getSumRow,
-  handleSort,
+  handleColumnOthersSort,
   commaStyle,
   othersFormula,
 } = require('./util')
@@ -40,15 +40,16 @@ module.exports = async (e, data) => {
 
     // 將資料塞到 sheetObj
     const handleSheet = () => {
-      const values = ws.getColumn(3).values
+      const rowDatas = ws.getColumn(3).values
+      const rowCount = ws.getColumn(1).values
       const regex = /([A-Z]{1,2})(#?[0-9]{1,2})-(\d+)(\*\d+)?(\*\d+)?=(\d+([\+|x]\d+)?)/gi
       const { car, others } = sheetObj
-      values.forEach((value) => {
-        value.replace(regex, (match, tNo, num, p1, p2 = '', p3 = '', count) => {
-          const obj = {
+      rowDatas.forEach((rowData, i) => {
+        rowData.replace(regex, (match, tNo, num, p1, p2 = '', p3 = '', count) => {
+          let obj = {
             tNo,
             num,
-            count: Function('return ' + count.replace(/x/i, '*'))(),
+            count: Function(`return  ${count.replace(/x/i, '*')} * ${rowCount[i]}`)(),
             lenB: '',
             lenA: '',
             lenC: '',
@@ -67,15 +68,15 @@ module.exports = async (e, data) => {
             obj.lenB = p1
           }
 
-          const { lenB, lenA, lenC } = obj
-
-          const key = `${num}_${tNo}_${lenA}_${lenB}_${lenC}`
-
           if (numMap.get(tNo) === '車牙料') {
             // 先補 CD CE FC 有長度A 讀統計 sheet line 9 對應 #X
             if (carTeethHasLenA.includes(tNo)) {
               obj.lenA = lineNightObj[num]
             }
+
+            const { lenB, lenA, lenC } = obj
+            const key = `${num}_${tNo}_${lenA}_${lenB}_${lenC}`
+
             // 計算總長度 長度B+長度A+ 有5有10
             obj.tLen = handleStringSum(lenB, lenA, carTeethMap.get(tNo)) || 0
             if (car[key]) {
@@ -85,8 +86,11 @@ module.exports = async (e, data) => {
             }
           } else {
             // 箍筋
-            obj.tLen = othersFormula(tNo, lenA, lenB, lenC, num)
 
+            obj = othersFormula(tNo, num, obj)
+
+            const { lenB, lenA, lenC } = obj
+            const key = `${num}_${tNo}_${lenA}_${lenB}_${lenC}`
             if (others[key]) {
               others[key].count += obj.count
             } else {
@@ -244,10 +248,10 @@ module.exports = async (e, data) => {
         const fillWeightArr = Object.values(arr).map((value) => {
           const { num, count, tLen } = value
           const weight = Math.round(COF[num] * count * tLen)
-          return { ...value, tLen, weight }
+          return { ...value, weight }
         })
 
-        handleSort(fillWeightArr).forEach((value, i) => {
+        handleColumnOthersSort(fillWeightArr).forEach((value, i) => {
           const { num, tNo, count, remark = '', lenC = '', lenA = '', tLen, weight, lenB } = value
           sheetArr[key].push(
             { ...rowInit, lenB },
@@ -300,6 +304,7 @@ module.exports = async (e, data) => {
             style: { ...cellCenterStyle, ...commaStyle },
           },
           { header: '長C', key: 'lenC', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
+          { header: '總長度', key: 'tLen', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
           { header: '支數', key: 'count', width: 8.625, style: { ...cellCenterStyle, ...commaStyle } },
         ]
 

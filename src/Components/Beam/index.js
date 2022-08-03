@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import './index.scss'
 
 function Beam() {
@@ -9,6 +9,7 @@ function Beam() {
   const [beamConstructionFile, setBeamConstructionFile] = useState('')
   const [beamConstructionFileA, setBeamConstructionFileA] = useState('')
   const [selectBeamRange, setSelectBeamRange] = useState(10)
+  const fileInputRef = useRef('')
 
   const handleClear = () => {
     setBeamMaterialFile('')
@@ -17,6 +18,7 @@ function Beam() {
     setBeamTidyFileA('')
     setBeamConstructionFile('')
     setBeamConstructionFileA('')
+    fileInputRef.current.value = ''
   }
 
   const handleInputChange = (e) => {
@@ -70,7 +72,7 @@ function Beam() {
 
       <button onClick={handleClear}>清除檔案</button>
 
-      <input type="file" onChange={handleInputChange} accept=".xlsx" />
+      <input ref={fileInputRef} type="file" onChange={handleInputChange} accept=".xlsx" />
 
       <label className="fileName">檔案:</label>
       <ul>
