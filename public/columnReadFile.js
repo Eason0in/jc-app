@@ -42,13 +42,13 @@ module.exports = async (e, data) => {
     const handleSheet = () => {
       const rowDatas = ws.getColumn(3).values
       const rowCount = ws.getColumn(1).values
-      const regex = /([A-Z]{1,2})(#?[0-9]{1,2})-(\d+)(\*\d+)?(\*\d+)?=(\d+([\+|x]\d+)?)/gi
+      const regex = /([A-Z]{1,2})(#?\d*~?#?\d)-(\d+)(\*\d+)?(\*\d+)?=(\d+([\+|x]\d+)?)/gi
       const { car, others } = sheetObj
       rowDatas.forEach((rowData, i) => {
         rowData.replace(regex, (match, tNo, num, p1, p2 = '', p3 = '', count) => {
           let obj = {
             tNo,
-            num,
+            num: num.replace(/(#?\d*)~(#?\d*)/, '$2'), // 有可能會轉號數 #10~#8
             count: Function(`return  ${count.replace(/x/i, '*')} * ${rowCount[i]}`)(),
             lenB: '',
             lenA: '',
@@ -75,10 +75,18 @@ module.exports = async (e, data) => {
             }
 
             const { lenB, lenA, lenC } = obj
-            const key = `${num}_${tNo}_${lenA}_${lenB}_${lenC}`
 
             // 計算總長度 長度B+長度A+ 有5有10
             obj.tLen = handleStringSum(lenB, lenA, carTeethMap.get(tNo)) || 0
+
+            const transNumRegex = new RegExp(/(#?\d*)~(#?\d*)/)
+            const isTransNum = transNumRegex.test(num)
+            if (isTransNum) {
+              obj.lenA = num.replace(/(#?\d*)~(#?\d*)/, '$1轉$2')
+            }
+
+            const key = `${num}_${tNo}_${obj.lenA}_${lenB}_${lenC}`
+
             if (car[key]) {
               car[key].count += obj.count
             } else {
