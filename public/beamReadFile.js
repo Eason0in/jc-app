@@ -84,9 +84,10 @@ module.exports = async (e, data) => {
 
           if (condF && condS && condT) {
             // 如果前一個有 #4 就抓 沒有就補
+            const regex = /^#\d{1,2}$/i
             const zero = row.getCell(colNumber - 1).result || row.getCell(colNumber - 1).value
             let num = mainBar
-            if (zero && ~zero.indexOf('#')) {
+            if (zero && regex.test(zero)) {
               num = zero
             }
 
@@ -164,9 +165,10 @@ module.exports = async (e, data) => {
 
         if (condF && condS && condT) {
           // 如果前一個有 #4 就抓 沒有就補
+          const regex = /^#\d{1,2}$/i
           const zero = twentySevenRow.getCell(colNumber - 1).result || twentySevenRow.getCell(colNumber - 1).value
           let num = mainBar
-          if (zero && ~zero.indexOf('#')) {
+          if (zero && regex.test(zero)) {
             num = zero
           }
 
@@ -204,8 +206,9 @@ module.exports = async (e, data) => {
       let subArr = []
       const twentyNightRow = ws.getRow(twentyNight)
       twentyNightRow.eachCell({ includeEmpty: false }, function (cell, colNumber) {
+        const regex = /^#\d{1,2}$/i
         const first = cell.result
-        const condF = first && first.length === 2 && ~first.indexOf('#')
+        const condF = first && regex.test(first)
 
         const second = twentyNightRow.getCell(colNumber + 1).result
         const secArr =
@@ -278,9 +281,10 @@ module.exports = async (e, data) => {
 
         if (condF && condS && condT) {
           // 如果前一個有 #4 就抓 沒有就補
+          const regex = /^#\d{1,2}$/i
           const zero = thirtyThreeRow.getCell(colNumber - 1).result || thirtyThreeRow.getCell(colNumber - 1).value
           let num = mainBar
-          if (zero && ~zero.indexOf('#')) {
+          if (zero && regex.test(zero)) {
             num = zero
           }
 
