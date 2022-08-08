@@ -229,12 +229,14 @@ module.exports = async (e, data) => {
         }
       })
 
-      // 加蓋子
-      const hatArr = Object.assign([], arr).map(([num, , lenB, , count]) => {
-        const lenA = lineTwenSevenObj[num]
-        const lenC = lineTwenSixObj[num]
-        return [num, 'E', lenB, lenA, count, lenC]
-      })
+      // 只有 GA 要加蓋子
+      const hatArr = arr
+        .filter(([, tNo]) => tNo === 'GA')
+        .map(([num, , lenB, , count]) => {
+          const lenA = lineTwenSevenObj[num]
+          const lenC = lineTwenSixObj[num]
+          return [num, 'E', lenB, lenA, count, lenC]
+        })
 
       arr.forEach(([num, tNo, lenB, lenA, count]) => {
         const key = `${num}_${tNo}_${lenB}_${lenA}`
