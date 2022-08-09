@@ -209,7 +209,7 @@ const othersFormula = (tNo, num, obj) => {
       return { ...obj, tLen: handleStringSum(lenA * 2, lenB, lineTwenSixObj[num]) }
 
     default:
-      return { ...obj, tLen: 0 }
+      return { ...obj, tLen: lenB }
   }
 }
 

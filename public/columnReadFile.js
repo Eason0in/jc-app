@@ -42,14 +42,14 @@ module.exports = async (e, data) => {
     const handleSheet = () => {
       const rowDatas = ws.getColumn(3).values
       const rowCount = ws.getColumn(1).values
-      const regex = /([A-Z]{1,2})(#?\d*~?#?\d)-(\d+)(\*\d+)?(\*\d+)?=(\d+([\+|x]\d+)?)/gi
+      const regex = /([A-Z]{1,2})(#?\d*~?#?\d)-(\d+)(\*\d+)?(\*\d+)?=(\d+([\+|x]\d+)*)/gi
       const { car, others } = sheetObj
       rowDatas.forEach((rowData, i) => {
         rowData.replace(regex, (match, tNo, num, p1, p2 = '', p3 = '', count) => {
           let obj = {
             tNo,
             num: num.replace(/(#?\d*)~(#?\d*)/, '$2'), // 有可能會轉號數 #10~#8
-            count: Function(`return  ${count.replace(/x/i, '*')} * ${rowCount[i]}`)(),
+            count: Function(`return  ${count.replaceAll(/x/gi, '*')} * ${rowCount[i]}`)(),
             lenB: '',
             lenA: '',
             lenC: '',
