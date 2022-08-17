@@ -42,30 +42,21 @@ module.exports = async (e, data) => {
     const handleSheet = () => {
       const rowDatas = ws.getColumn(3).values
       const rowCount = ws.getColumn(1).values
-      const regex = /([A-Z]{1,2})(#?\d*~?#?\d)-(\d+)(\*\d+)?(\*\d+)?=(\d+([\+|x]\d+)*)/gi
+      const regex = /([A-Z]{1,2})(#?\d*~?#?\d)-(\d+)(\*\d+)?=(\d+([\+|x]\d+)*)/gi
       const { car, others } = sheetObj
       rowDatas.forEach((rowData, i) => {
-        rowData.replace(regex, (match, tNo, num, p1, p2 = '', p3 = '', count) => {
+        rowData.replace(regex, (match, tNo, num, p1, p2 = '', count) => {
           let obj = {
             tNo,
             num: num.replace(/(#?\d*)~(#?\d*)/, '$2'), // 有可能會轉號數 #10~#8
             count: Function(`return  ${count.replaceAll(/x/gi, '*')} * ${rowCount[i]}`)(),
-            lenB: '',
+            lenB: p1,
             lenA: '',
             lenC: '',
           }
-          if (p3) {
-            // 70*250*80 A*B*C
-            obj.lenA = p1
-            obj.lenB = p2.replace('*', '')
-            obj.lenC = p3.replace('*', '')
-          } else if (p2) {
-            // 70*250 A*B
-            obj.lenA = p1
-            obj.lenB = p2.replace('*', '')
-          } else {
-            // 80 B
-            obj.lenB = p1
+          if (p2) {
+            // 70*250*80 B*A
+            obj.lenA = p2.replace('*', '')
           }
 
           if (numMap.get(tNo) === '車牙料') {

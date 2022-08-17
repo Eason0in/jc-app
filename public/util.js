@@ -192,8 +192,8 @@ const othersFormula = (tNo, num, obj) => {
         lenC: lineTwenEightObj[num],
       }
 
-    case 'G': // A + B + C
-      return { ...obj, tLen: handleStringSum(lenA, lenB, lenC) }
+    case 'G': // A*2 + B
+      return { ...obj, tLen: handleStringSum(lenA * 2, lenB) }
 
     case 'B': // A + B + 135*2
       return { ...obj, tLen: handleStringSum(lenA, lenB, lineTwenSevenObj[num] * 2) }
