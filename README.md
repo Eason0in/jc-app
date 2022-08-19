@@ -17,4 +17,4 @@
 
 ## Screen Photo
 
-![樑](/ScreenShot/樑.JPG)
+![樑](/ScreenShot/beam.jpg)
