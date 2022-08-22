@@ -14,4 +14,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   sendColumnMaterialFile: (callback) => ipcRenderer.on('column-material-file', callback),
 
   sendColumnTidyFile: (callback) => ipcRenderer.on('column-tidy-file', callback),
+  boardReadFile: (filePath) => {
+    ipcRenderer.invoke('board-read-file', filePath)
+  },
+  sendBoardTidyFile: (callback) => ipcRenderer.on('board-tidy-file', callback),
+  sendBoardMaterialFile: (callback) => ipcRenderer.on('board-material-file', callback),
 })

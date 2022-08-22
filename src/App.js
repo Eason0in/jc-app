@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.scss'
 import Beam from './Components/Beam'
+import Board from './Components/Board'
 import Column from './Components/Column'
 import Tab from './Components/Tab'
 
@@ -21,7 +22,7 @@ function App() {
     },
     board: {
       name: '板',
-      elem: <></>,
+      elem: <Board />,
     },
   }
   return (
