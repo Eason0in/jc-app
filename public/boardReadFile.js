@@ -13,11 +13,6 @@ const {
   commaStyle,
 } = require('./util')
 
-const sheetNameObj = {
-  all: '除馬椅外',
-  others: '馬椅',
-}
-
 module.exports = async (e, data) => {
   try {
     const webContents = e.sender
@@ -90,7 +85,16 @@ module.exports = async (e, data) => {
               obj.lenA = lineNightObj[num]
             }
 
-            const key = `${num}_${tNo}_${obj.lenA}_${lenB}_${lenC}`
+            // AC 有長度C 讀統計 sheet line 9 對應 #X
+            // CC 有長度A、C 讀統計 sheet line 9 對應 #X
+            if (tNo === 'AC') {
+              obj.lenC = lineNightObj[obj.num]
+            } else if (tNo === 'CC') {
+              obj.lenA = lineNightObj[obj.num]
+              obj.lenC = lineNightObj[obj.num]
+            }
+
+            const key = `${num}_${tNo}_${obj.lenA}_${lenB}_${obj.lenC}`
 
             if (all[key]) {
               all[key].count += obj.count
