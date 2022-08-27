@@ -4,6 +4,7 @@ const { autoUpdater } = require('electron-updater')
 const beamReadFile = require('./beamReadFile')
 const columnReadFile = require('./columnReadFile')
 const boardReadFile = require('./boardReadFile')
+const wallReadFile = require('./wallReadFile')
 const isDev = require('electron-is-dev')
 
 const ExpirationDate = '2022/11/01'
@@ -11,6 +12,7 @@ const ExpirationDate = '2022/11/01'
 ipcMain.handle('beam-read-file', beamReadFile)
 ipcMain.handle('column-read-file', columnReadFile)
 ipcMain.handle('board-read-file', boardReadFile)
+ipcMain.handle('wall-read-file', wallReadFile)
 
 const createWindow = () => {
   const win = new BrowserWindow({

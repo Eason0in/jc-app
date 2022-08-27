@@ -1,0 +1,41 @@
+section#wall {
+  display: grid;
+  font-size: 16px;
+  grid-template-areas:
+    'needTidy range clear'
+    'read read read'
+    'name name name'
+    'files files files';
+  row-gap: 20px;
+  align-items: center;
+  .needTidy {
+    grid-area: needTidy;
+    input {
+      width: 14px;
+      height: 14px;
+    }
+  }
+  .range {
+    grid-area: range;
+    select {
+      padding: 5px;
+      font-size: 16px;
+    }
+  }
+  button {
+    grid-area: clear;
+  }
+  input {
+    grid-area: read;
+    font-size: 16px;
+  }
+  label.fileName {
+    grid-area: name;
+  }
+  ul {
+    grid-area: files;
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+  }
+}

@@ -3,6 +3,7 @@ import './App.scss'
 import Beam from './Components/Beam'
 import Board from './Components/Board'
 import Column from './Components/Column'
+import Wall from './Components/Wall'
 import Tab from './Components/Tab'
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
     },
     wall: {
       name: '牆',
-      elem: <></>,
+      elem: <Wall />,
     },
     board: {
       name: '板',
