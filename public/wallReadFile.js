@@ -59,7 +59,7 @@ module.exports = async (e, data) => {
             lenB: p4,
             lenA: '',
             lenC: '',
-            remark: remark && remark.match(/\(([\w|\W]*)\)/)[1],
+            remark: remark.trim() && remark.match(/\(([\w|\W]*)\)/)[1],
           }
 
           if (p4 && p5) {
