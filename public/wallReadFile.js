@@ -344,7 +344,7 @@ module.exports = async (e, data) => {
 
       //#region 產生檔案
       workbook.xlsx.writeBuffer().then((content) => {
-        win.webContents.send('board-material-file', content)
+        win.webContents.send('wall-material-file', content)
       })
 
       //#endregion
@@ -426,7 +426,7 @@ module.exports = async (e, data) => {
 
       //#region 將檔案轉成 buffer 丟到前面
       workbook.xlsx.writeBuffer().then((content) => {
-        win.webContents.send('board-tidy-file', content)
+        win.webContents.send('wall-tidy-file', content)
       })
 
       //#endregion
