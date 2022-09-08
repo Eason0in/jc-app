@@ -21,6 +21,7 @@ const {
   handleSort,
   handleOthersSort,
   commaStyle,
+  beamOthersCal,
 } = require('./util')
 
 const sheetNameObj = {
@@ -243,8 +244,7 @@ module.exports = async (e, data) => {
 
       arr.forEach(([num, tNo, lenB, lenA, count]) => {
         const key = `${num}_${tNo}_${lenB}_${lenA}`
-        // 計算總長度 因為箍筋算法：A*2 +B + 2* 號數去讀 lineTwenSevenObj 對應 #X
-        const tLen = handleStringSum(lenB, lenA * 2, lineTwenSevenObj[num] * 2)
+        const tLen = beamOthersCal({ tNo, lenB, lenA, num })
         if (othersObj[key]) {
           othersObj[key].count += count
         } else {

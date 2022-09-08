@@ -213,6 +213,18 @@ const othersFormula = (tNo, num, obj) => {
   }
 }
 
+//梁- 箍筋 GA HJ計算 tLen
+const beamOthersCal = ({ tNo, lenB, lenA, num }) => {
+  switch (tNo) {
+    case 'GA': // A*2 +B + 2* 號數去讀 lineTwenSevenObj 對應 #X
+      return handleStringSum(lenB, lenA * 2, lineTwenSevenObj[num] * 2)
+    case 'HJ':
+      return handleStringSum(lenB * 2, lenA * 2, lineTwenSixObj[num], lineTwenEightObj[num])
+    default:
+      return 0
+  }
+}
+
 module.exports = {
   createOuterBorder,
   cellCenterStyle,
@@ -223,4 +235,5 @@ module.exports = {
   commaStyle,
   othersFormula,
   handleColumnOthersSort,
+  beamOthersCal,
 }
