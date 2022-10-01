@@ -1,24 +1,27 @@
+@import '../../style/variable.scss';
+
 section#tab {
   ul {
     display: inline-flex;
     column-gap: 10px;
-    border-bottom: 1px rgb(104, 103, 103) solid;
+    border-bottom: 1px $black solid;
     li {
       button {
         font-size: 18px;
         padding: 10px 40px;
-        border: 1px lightgray solid;
+        border: 1px $sub-blue solid;
         border-bottom: none;
 
-        background-color: white;
+        background-color: $white;
         &:hover {
           cursor: pointer;
+          background-color: $hover-blue;
         }
       }
 
       &.active {
         button {
-          border-top: 3px red solid;
+          border-top: 3px $sub-blue solid;
         }
       }
     }

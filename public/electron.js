@@ -7,7 +7,7 @@ const boardReadFile = require('./boardReadFile')
 const wallReadFile = require('./wallReadFile')
 const isDev = require('electron-is-dev')
 
-const ExpirationDate = '2022/11/01'
+// const ExpirationDate = '2022/11/01'
 
 ipcMain.handle('beam-read-file', beamReadFile)
 ipcMain.handle('column-read-file', columnReadFile)
@@ -21,6 +21,7 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, './preload.js'),
     },
+    icon: path.join(__dirname, './icon.png'),
   })
 
   if (isDev) {
@@ -50,18 +51,18 @@ const createWindow = () => {
       },
     })
   )
-  menu.append(
-    new MenuItem({
-      label: '使用到期日',
-      click: () => {
-        const dialogOpts = {
-          type: 'info',
-          detail: `使用到期日為 ${ExpirationDate}`,
-        }
-        dialog.showMessageBox(dialogOpts)
-      },
-    })
-  )
+  // menu.append(
+  //   new MenuItem({
+  //     label: '使用到期日',
+  //     click: () => {
+  //       const dialogOpts = {
+  //         type: 'info',
+  //         detail: `使用到期日為 ${ExpirationDate}`,
+  //       }
+  //       dialog.showMessageBox(dialogOpts)
+  //     },
+  //   })
+  // )
   menu.append(
     new MenuItem({
       label: 'Toggle Developer Tools',
@@ -75,19 +76,19 @@ const createWindow = () => {
   Menu.setApplicationMenu(menu)
 }
 
-const isValidDate = () => {
-  if (isDev) return true
+// const isValidDate = () => {
+//   if (isDev) return true
 
-  // 如果是正式環境，檢查到期日
-  const today = new Date(new Date().toDateString())
-  return new Date(ExpirationDate) >= today
-}
+//   // 如果是正式環境，檢查到期日
+//   const today = new Date(new Date().toDateString())
+//   return new Date(ExpirationDate) >= today
+// }
 
 app.whenReady().then(() => {
-  if (!isValidDate()) {
-    dialog.showErrorBox('軟體已過期', '軟體已過期，請洽管理員')
-    app.quit()
-  }
+  // if (!isValidDate()) {
+  //   dialog.showErrorBox('軟體已過期', '軟體已過期，請洽管理員')
+  //   app.quit()
+  // }
 
   createWindow()
 })
