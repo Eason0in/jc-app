@@ -208,10 +208,10 @@ module.exports = async (e, data) => {
       const twentyNightRow = ws.getRow(twentyNight)
       twentyNightRow.eachCell({ includeEmpty: false }, function (cell, colNumber) {
         const regex = /^#\d{1,2}$/i
-        const first = cell.result
+        const first = cell.result || cell.value
         const condF = first && regex.test(first)
 
-        const second = twentyNightRow.getCell(colNumber + 1).result
+        const second = twentyNightRow.getCell(colNumber + 1).result || twentyNightRow.getCell(colNumber + 1).value
         const secArr =
           second &&
           second
@@ -272,7 +272,7 @@ module.exports = async (e, data) => {
         const tNo = resultOrValue ? typeof resultOrValue === 'string' && resultOrValue.toUpperCase() : undefined
         const condF = tNo && numMap.has(tNo)
 
-        const lenB = thirtyThreeRow.getCell(colNumber + 1).result
+        const lenB = thirtyThreeRow.getCell(colNumber + 1).result || thirtyThreeRow.getCell(colNumber + 1).value
         const condS = lenB && typeof lenB === 'number'
 
         const count = thirtyThreeRow.getCell(colNumber + 2).result || thirtyThreeRow.getCell(colNumber + 2).value
