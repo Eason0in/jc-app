@@ -53,7 +53,7 @@ module.exports = async (e, data) => {
         // p3:@120 p8:*2 不用
         rowData.replace(regex, (match, tNo, num, p3, p4, p5, p6, count, p8, remark) => {
           let obj = {
-            tNo,
+            tNo: tNo.toUpperCase(),
             num,
             count: Function(`return  ${count.replaceAll(/x/gi, '*')} * ${rowCount[i]}`)(),
             lenB: p4,

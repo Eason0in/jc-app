@@ -47,7 +47,7 @@ module.exports = async (e, data) => {
       rowDatas.forEach((rowData, i) => {
         rowData.replace(regex, (match, tNo, num, p1, p2 = '', count) => {
           let obj = {
-            tNo,
+            tNo: tNo.toUpperCase(),
             num: num.replace(/(#?\d*)~(#?\d*)/, '$2'), // 有可能會轉號數 #10~#8
             count: Function(`return  ${count.replaceAll(/x/gi, '*')} * ${rowCount[i]}`)(),
             lenB: p1,
