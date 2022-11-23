@@ -42,7 +42,7 @@ module.exports = async (e, data) => {
     const handleSheet = () => {
       const rowDatas = ws.getColumn(3).values
       const rowCount = ws.getColumn(1).values
-      const regex = /([A-Z]{1,2})(#?\d*~?#?\d)-(\d+)(\*\d+)?=(\d+([\+|x]\d+)*)/gi
+      const regex = /([A-Z]{1,2})(#?\d*~?#?\d*)-(\d+)(\*\d+)?=(\d+([\+|x]\d+)*)/gi
       const { car, others } = sheetObj
       rowDatas.forEach((rowData, i) => {
         rowData.replace(regex, (match, tNo, num, p1, p2 = '', count) => {
