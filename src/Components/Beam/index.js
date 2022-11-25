@@ -60,7 +60,7 @@ function Beam() {
   return (
     <section id="beam">
       <div className="range">
-        <label htmlFor="beamRange">歸整間距：</label>
+        <label htmlFor="beamRange">歸整間距(CC例外)：</label>
         <select name="beamRange" id="beamRange" value={selectBeamRange} onChange={handleSelectChange}>
           <option value="10">10</option>
           <option value="20">20</option>

@@ -48,7 +48,7 @@ function Board() {
   return (
     <section id="board">
       <div className="needTidy">
-        <label htmlFor="isNeedTidy">是否需要歸整</label>
+        <label htmlFor="isNeedTidy">是否需要歸整(CC例外)</label>
         <input id="isNeedTidy" type="checkbox" value={isNeedTidy} onClick={() => setIsNeedTidy(!isNeedTidy)} />
       </div>
 

@@ -338,6 +338,12 @@ module.exports = async (e, data) => {
 
           for (let i = 0; i < subArr.length; i++) {
             while (subArr[i].lenB <= currentMax) {
+              // CC 跳過不歸整
+              if (subArr[i].tNo === 'CC') {
+                subArr[i].newLenB = subArr[i].lenB
+                break
+              }
+
               if (subArr[i].lenB > nextMax) {
                 subArr[i].newLenB = currentMax
                 break
@@ -748,7 +754,7 @@ module.exports = async (e, data) => {
     handleToSheetObj() // 將 tidiedObj othersObj 排序並放入 sheetObj
     handleWrite()
 
-    handleReWrite() // 歸整後資料施工圖
+    // handleReWrite() // 歸整後資料施工圖
   } catch (error) {
     dialog.showErrorBox('錯誤', error.stack)
   }

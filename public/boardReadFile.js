@@ -370,6 +370,12 @@ module.exports = async (e, data) => {
 
             for (let i = 0; i < subArr.length; i++) {
               while (subArr[i].lenB <= currentMax) {
+                // CC 跳過不歸整
+                if (subArr[i].tNo === 'CC') {
+                  subArr[i].newLenB = subArr[i].lenB
+                  break
+                }
+
                 if (subArr[i].lenB > nextMax) {
                   subArr[i].newLenB = currentMax
                   break
