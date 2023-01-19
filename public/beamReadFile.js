@@ -35,7 +35,7 @@ module.exports = async (e, data) => {
   try {
     const webContents = e.sender
     const win = BrowserWindow.fromWebContents(webContents)
-    const { filePath, range } = data
+    const { filePath, range, isNeedTidy } = data
     const workbook = new Excel.Workbook()
     await workbook.xlsx.readFile(filePath)
     const buildName = workbook.getWorksheet('統計').getCell('D13').value
@@ -649,10 +649,109 @@ module.exports = async (e, data) => {
       })
     }
 
-    const handleToSheetObj = () => {
+    const handleSortTidiedObjToSheetObj = () => {
       setA()
       setCar()
       setStirrups()
+      setOthers()
+    }
+
+    const setNeedTidyA = () => {
+      const { a } = needTidyObj
+      const aFillTLenArr = Object.values(a).map((value) => {
+        const { num, lenB, count, lenC = '', lenA = '' } = value
+        const tLen = handleStringSum(lenB, lenA, lenC) || 0
+        const weight = Math.round(COF[num] * count * tLen)
+        return { ...value, tLen, weight }
+      })
+
+      handleSort(aFillTLenArr).forEach((value, i) => {
+        const { num, tNo, lenB, count, remark = '', lenC = '', lenA = '', tLen, weight } = value
+        sheetObj.a.push(
+          { ...rowInit, lenB },
+          {
+            no: i + 1,
+            tNo: numMap.get(tNo),
+            num,
+            lenA,
+            lenB: '',
+            lenC,
+            tLen,
+            count,
+            weight,
+            remark,
+            imageName: `${tNo}.png`,
+          }
+        )
+      })
+    }
+
+    const setNeedTidyCar = () => {
+      const { car } = needTidyObj
+
+      const carFillTLenArr = Object.values(car).map((value) => {
+        const { num, tNo, lenB, count, lenA } = value
+        const tLen = handleStringSum(lenB, lenA, carTeethMap.get(tNo)) || 0
+        const weight = Math.round(COF[num] * count * tLen)
+        return { ...value, tLen, weight }
+      })
+
+      handleSort(carFillTLenArr).forEach((value, i) => {
+        const { num, tNo, lenB, count, lenA, tLen, weight } = value
+
+        sheetObj.car.push(
+          { ...rowInit, lenB },
+          {
+            no: i + 1,
+            tNo: numMap.get(tNo),
+            num,
+            lenA,
+            lenB: '',
+            lenC: '',
+            tLen,
+            count,
+            weight,
+            remark: '',
+            imageName: `${tNo}.png`,
+          }
+        )
+      })
+    }
+
+    const setNeedTidyStirrups = () => {
+      const { stirrups } = needTidyObj
+
+      const stirrupsFillTLenArr = Object.values(stirrups).map((value) => {
+        const { num, count, lenB, lenC = '', lenA = '' } = value
+        const tLen = handleStringSum(lenB, lenA, lenC) || 0
+        const weight = Math.round(COF[num] * count * tLen)
+        return { ...value, tLen, weight }
+      })
+      handleSort(stirrupsFillTLenArr).forEach((value, i) => {
+        const { num, tNo, lenB, lenA, count, lenC, tLen, weight } = value
+        sheetObj.stirrups.push(
+          { ...rowInit, lenB },
+          {
+            no: i + 1,
+            tNo: numMap.get(tNo),
+            num,
+            lenA,
+            lenB: '',
+            lenC,
+            tLen,
+            count,
+            weight,
+            remark: '',
+            imageName: `${tNo}.png`,
+          }
+        )
+      })
+    }
+
+    const handleSortNeedTidyObjToSheetObj = () => {
+      setNeedTidyA()
+      setNeedTidyCar()
+      setNeedTidyStirrups()
       setOthers()
     }
 
@@ -748,10 +847,15 @@ module.exports = async (e, data) => {
       }
     })
 
-    handleTidy() // 歸整
-    handleTidyWrite() // 寫歸整檔案
+    if (isNeedTidy) {
+      handleTidy() // 歸整
+      handleTidyWrite() // 寫歸整檔案
 
-    handleToSheetObj() // 將 tidiedObj othersObj 排序並放入 sheetObj
+      handleSortTidiedObjToSheetObj() // 將 tidiedObj othersObj 排序並放入 sheetObj
+    } else {
+      handleSortNeedTidyObjToSheetObj() // 將 needTidyObj othersObj 排序並放入 sheetObj
+    }
+
     handleWrite()
 
     // handleReWrite() // 歸整後資料施工圖

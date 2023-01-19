@@ -2,11 +2,19 @@ section#beam {
   display: grid;
   font-size: 16px;
   grid-template-areas:
-    'range clear'
-    'read read'
-    'name name'
-    'files files';
+    'needTidy range clear'
+    'read read read'
+    'name name name'
+    'files files files';
   row-gap: 20px;
+  align-items: center;
+  .needTidy {
+    grid-area: needTidy;
+    input {
+      width: 14px;
+      height: 14px;
+    }
+  }
   .range {
     grid-area: range;
     select {

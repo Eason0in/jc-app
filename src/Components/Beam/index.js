@@ -10,6 +10,7 @@ function Beam() {
   const [beamConstructionFileA, setBeamConstructionFileA] = useState('')
   const [selectBeamRange, setSelectBeamRange] = useState(10)
   const fileInputRef = useRef('')
+  const [isNeedTidy, setIsNeedTidy] = useState(false)
 
   const handleClear = () => {
     setBeamMaterialFile('')
@@ -23,7 +24,7 @@ function Beam() {
 
   const handleInputChange = (e) => {
     const [file] = e.target.files
-    const data = { filePath: file.path, range: selectBeamRange }
+    const data = { filePath: file.path, range: selectBeamRange, isNeedTidy }
     window.electronAPI.beamReadFile(data)
   }
   const handleSelectChange = (e) => {
@@ -59,6 +60,11 @@ function Beam() {
 
   return (
     <section id="beam">
+      <div className="needTidy">
+        <label htmlFor="isNeedTidy">是否需要歸整(CC例外)</label>
+        <input id="isNeedTidy" type="checkbox" value={isNeedTidy} onClick={() => setIsNeedTidy(!isNeedTidy)} />
+      </div>
+
       <div className="range">
         <label htmlFor="beamRange">歸整間距(CC例外)：</label>
         <select name="beamRange" id="beamRange" value={selectBeamRange} onChange={handleSelectChange}>
