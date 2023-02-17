@@ -8,6 +8,8 @@ function Beam() {
   const [beamTidyFileA, setBeamTidyFileA] = useState('')
   const [beamConstructionFile, setBeamConstructionFile] = useState('')
   const [beamConstructionFileA, setBeamConstructionFileA] = useState('')
+  const [beamTidyBySheetNameFile, setBeamTidyBySheetNameFile] = useState('')
+  const [beamTidyBySheetNameFileA, setBeamTidyBySheetNameFileA] = useState('')
   const [selectBeamRange, setSelectBeamRange] = useState(10)
   const fileInputRef = useRef('')
   const [isNeedTidy, setIsNeedTidy] = useState(false)
@@ -19,6 +21,8 @@ function Beam() {
     setBeamTidyFileA('')
     setBeamConstructionFile('')
     setBeamConstructionFileA('')
+    setBeamTidyBySheetNameFile('')
+    setBeamTidyBySheetNameFileA('')
     fileInputRef.current.value = ''
   }
 
@@ -49,6 +53,14 @@ function Beam() {
     setBeamTidyFileA('歸整.xlsx')
   })
 
+  window.electronAPI.sendBeamTidyBySheetNameFile((event, content) => {
+    const blobData = new Blob([content], {
+      type: 'application/vnd.ms-excel;charset=utf-8;',
+    })
+
+    setBeamTidyBySheetNameFile(URL.createObjectURL(blobData))
+    setBeamTidyBySheetNameFileA('料單下方歸整統計表.xlsx')
+  })
   window.electronAPI.sendBeamConstructionFile((event, content) => {
     const blobData = new Blob([content], {
       type: 'application/vnd.ms-excel;charset=utf-8;',
@@ -90,6 +102,11 @@ function Beam() {
         <li>
           <a href={beamMaterialFile} download="料單.xlsx">
             {beamMaterialFileA}
+          </a>
+        </li>
+        <li>
+          <a href={beamTidyBySheetNameFile} download="料單下方歸整統計表.xlsx">
+            {beamTidyBySheetNameFileA}
           </a>
         </li>
         <li>

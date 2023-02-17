@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   sendBeamTidyFile: (callback) => ipcRenderer.on('beam-tidy-file', callback),
   sendBeamMaterialFile: (callback) => ipcRenderer.on('beam-material-file', callback),
   sendBeamConstructionFile: (callback) => ipcRenderer.on('beam-construction-file', callback),
+  sendBeamTidyBySheetNameFile: (callback) => ipcRenderer.on('beam-tidy-by-sheet-name-file', callback),
 
   columnReadFile: (filePath) => {
     ipcRenderer.invoke('column-read-file', filePath)

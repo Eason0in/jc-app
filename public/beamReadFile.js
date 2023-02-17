@@ -61,6 +61,8 @@ module.exports = async (e, data) => {
       stirrups: [],
       car: [],
     }
+    // sheetName 為單位的歸整檔案的 arr
+    const tidyBySheetNameArr = []
 
     //#endregion
 
@@ -138,6 +140,7 @@ module.exports = async (e, data) => {
       // 抓沒有 #x 要補的數字
       const mainBar = `#${ws.getCell('D4').value}`
       const [twentySeven, twentyNight, thirtyThree] = linesArr
+      const sheetName = ws.name
 
       //#region 馬椅 斜撐 27
       const twentySevenRow = ws.getRow(twentySeven)
@@ -180,14 +183,14 @@ module.exports = async (e, data) => {
             // #10_A_750
             key = `${num}_${tNo}_${lenB}`
 
-            obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), tLen: lenB }
+            obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), tLen: lenB, sheetName }
           } else if (tNo === 'ID') {
             // 馬椅
             const lenC = lineNightObj[num]
             // 計算總長度 馬椅算法：A*2 + C*2 +B
             const tLen = handleStringSum(lenA * 2, lineNightObj[num] * 2, lenB)
 
-            obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), lenA, lenC, tLen }
+            obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), lenA, lenC, tLen, sheetName }
 
             key = `${obj.num}_${obj.tNo}_${lenB}_${lenA}`
           }
@@ -248,7 +251,7 @@ module.exports = async (e, data) => {
         if (othersObj[key]) {
           othersObj[key].count += count
         } else {
-          othersObj[key] = { num, tNo, lenB, lenA, count, tLen }
+          othersObj[key] = { num, tNo, lenB, lenA, count, tLen, sheetName }
         }
       })
 
@@ -259,7 +262,7 @@ module.exports = async (e, data) => {
         if (othersObj[key]) {
           othersObj[key].count += count
         } else {
-          othersObj[key] = { num, tNo, lenB, lenA, count, lenC, tLen }
+          othersObj[key] = { num, tNo, lenB, lenA, count, lenC, tLen, sheetName }
         }
       })
 
@@ -288,7 +291,7 @@ module.exports = async (e, data) => {
             num = zero
           }
 
-          const obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), remark: '腰筋', tLen: lenB }
+          const obj = { num, tNo, lenB, count: +count.replace(/X|x/gi, ''), remark: '腰筋', tLen: lenB, sheetName }
 
           // #10_A_750
           const key = `${num}_${tNo}_${lenB}`
@@ -382,6 +385,10 @@ module.exports = async (e, data) => {
 
       handleSort(aFillTLenArr).forEach((value, i) => {
         const { num, tNo, newLenB, count, remark = '', lenC = '', lenA = '', tLen, weight } = value
+
+        // sheetName 為單位的歸整檔案的 arr
+        tidyBySheetNameArr.push(value)
+
         sheetObj.a.push(
           { ...rowInit, lenB: newLenB },
           {
@@ -423,6 +430,9 @@ module.exports = async (e, data) => {
       handleSort(carFillTLenArr).forEach((value, i) => {
         const { num, tNo, newLenB, count, lenA, tLen, weight } = value
 
+        // sheetName 為單位的歸整檔案的 arr
+        tidyBySheetNameArr.push(value)
+
         sheetObj.car.push(
           { ...rowInit, lenB: newLenB },
           {
@@ -462,6 +472,10 @@ module.exports = async (e, data) => {
       })
       handleSort(stirrupsFillTLenArr).forEach((value, i) => {
         const { num, tNo, newLenB, lenA, count, lenC, tLen, weight } = value
+
+        // sheetName 為單位的歸整檔案的 arr
+        tidyBySheetNameArr.push(value)
+
         sheetObj.stirrups.push(
           { ...rowInit, lenB: newLenB },
           {
@@ -483,12 +497,16 @@ module.exports = async (e, data) => {
 
     const setOthers = () => {
       const othersFillTLenArr = Object.values(othersObj).map((value) => {
-        const { num, tLen, count } = value
+        const { num, tLen, count, lenB } = value
         const weight = Math.round(COF[num] * count * tLen)
-        return { ...value, weight }
+        return { ...value, weight, newLenB: lenB }
       })
       handleOthersSort(othersFillTLenArr).forEach((value, i) => {
         const { num, tNo, lenB, lenA, count, lenC, tLen, weight, remark = '' } = value
+
+        // sheetName 為單位的歸整檔案的 arr
+        tidyBySheetNameArr.push(value)
+
         sheetObj.others.push(
           { ...rowInit, lenB: lenB },
           {
@@ -825,6 +843,61 @@ module.exports = async (e, data) => {
       //#endregion
     }
 
+    const handleTidyWriteBySheet = async () => {
+      const workbook = new Excel.Workbook() // 創建試算表檔案
+      // 將 sheetObj 三個類別裡面的資料彙總依照 sheetName 為單位的 sheet
+      const obj = {}
+      for (const item of tidyBySheetNameArr) {
+        const { sheetName } = item
+        if (sheetName in obj) {
+          obj[sheetName].push(item)
+        } else {
+          obj[sheetName] = [item]
+        }
+      }
+      Object.entries(obj).forEach(async ([key, dataArr]) => {
+        const sheet = workbook.addWorksheet(key)
+        //在檔案中新增工作表
+
+        //#region step1 定義欄位
+        sheet.columns = [
+          { header: '型號', key: 'tNo', width: 9, style: cellCenterStyle },
+          { header: '號數', key: 'num', width: 9, style: cellCenterStyle },
+          { header: 'A長', key: 'lenA', width: 9, style: cellCenterStyle },
+          { header: 'B長及形狀', key: 'newLenB', width: 15, style: cellCenterStyle },
+          { header: 'C長', key: 'lenC', width: 9, style: cellCenterStyle },
+          { header: '總長', key: 'tLen', width: 15, style: cellCenterStyle },
+          { header: '數量', key: 'count', width: 15, style: cellCenterStyle },
+          { header: '重量', key: 'weight', width: 15, style: cellCenterStyle },
+        ]
+
+        //#endregion
+
+        //#region step2 把內容資料先放進去並設定 border
+        // 將rows 加入 sheet
+        sheet.addRows(dataArr.flat())
+
+        // 設定 border
+        sheet.eachRow(function (row) {
+          row.border = {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' },
+          }
+        })
+
+        //#endregion
+      })
+
+      //#region 將檔案轉成 buffer 丟到前面
+      workbook.xlsx.writeBuffer().then((content) => {
+        win.webContents.send('beam-tidy-by-sheet-name-file', content)
+      })
+
+      //#endregion
+    }
+
     const handleReWrite = () => {
       Object.values(tidiedObj).forEach((arr) => {
         arr.flat().forEach(({ sheetName, sheetAddress, newLenB }) => {
@@ -856,6 +929,7 @@ module.exports = async (e, data) => {
       handleSortNeedTidyObjToSheetObj() // 將 needTidyObj othersObj 排序並放入 sheetObj
     }
 
+    handleTidyWriteBySheet() // 寫歸整檔案，但用 sheet 分頁
     handleWrite()
 
     // handleReWrite() // 歸整後資料施工圖
