@@ -680,11 +680,15 @@ module.exports = async (e, data) => {
         const { num, lenB, count, lenC = '', lenA = '' } = value
         const tLen = handleStringSum(lenB, lenA, lenC) || 0
         const weight = Math.round(COF[num] * count * tLen)
-        return { ...value, tLen, weight }
+        return { ...value, tLen, weight, newLenB: lenB }
       })
 
       handleSort(aFillTLenArr).forEach((value, i) => {
         const { num, tNo, lenB, count, remark = '', lenC = '', lenA = '', tLen, weight } = value
+
+        // sheetName 為單位的歸整檔案的 arr
+        tidyBySheetNameArr.push(value)
+
         sheetObj.a.push(
           { ...rowInit, lenB },
           {
@@ -711,11 +715,13 @@ module.exports = async (e, data) => {
         const { num, tNo, lenB, count, lenA } = value
         const tLen = handleStringSum(lenB, lenA, carTeethMap.get(tNo)) || 0
         const weight = Math.round(COF[num] * count * tLen)
-        return { ...value, tLen, weight }
+        return { ...value, tLen, weight, newLenB: lenB }
       })
 
       handleSort(carFillTLenArr).forEach((value, i) => {
         const { num, tNo, lenB, count, lenA, tLen, weight } = value
+        // sheetName 為單位的歸整檔案的 arr
+        tidyBySheetNameArr.push(value)
 
         sheetObj.car.push(
           { ...rowInit, lenB },
@@ -743,10 +749,12 @@ module.exports = async (e, data) => {
         const { num, count, lenB, lenC = '', lenA = '' } = value
         const tLen = handleStringSum(lenB, lenA, lenC) || 0
         const weight = Math.round(COF[num] * count * tLen)
-        return { ...value, tLen, weight }
+        return { ...value, tLen, weight, newLenB: lenB }
       })
       handleSort(stirrupsFillTLenArr).forEach((value, i) => {
         const { num, tNo, lenB, lenA, count, lenC, tLen, weight } = value
+        // sheetName 為單位的歸整檔案的 arr
+        tidyBySheetNameArr.push(value)
         sheetObj.stirrups.push(
           { ...rowInit, lenB },
           {
@@ -847,7 +855,8 @@ module.exports = async (e, data) => {
       const workbook = new Excel.Workbook() // 創建試算表檔案
       // 將 sheetObj 三個類別裡面的資料彙總依照 sheetName 為單位的 sheet
       const obj = {}
-      for (const item of tidyBySheetNameArr) {
+      const orderBySheetName = tidyBySheetNameArr.sort((pre, next) => (pre.sheetName > next.sheetName ? 1 : -1))
+      for (const item of orderBySheetName) {
         const { sheetName } = item
         if (sheetName in obj) {
           obj[sheetName].push(item)
