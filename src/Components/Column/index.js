@@ -1,23 +1,25 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import './index.scss'
+import Dropzone from '../Dropzone'
 
 function Column() {
   const [columnMaterialFileA, setColumnMaterialFileA] = useState('')
   const [columnMaterialFile, setColumnMaterialFile] = useState('')
   const [columnTidyFile, setColumnTidyFile] = useState('')
   const [columnTidyFileA, setColumnTidyFileA] = useState('')
-  const fileInputRef = useRef('')
+  const [fileName, setFileName] = useState('')
 
   const handleClear = () => {
     setColumnMaterialFile('')
     setColumnMaterialFileA('')
     setColumnTidyFile('')
     setColumnTidyFileA('')
-    fileInputRef.current.value = ''
+    setFileName('')
   }
 
   const handleInputChange = (e) => {
-    const [file] = e.target.files
+    const [file] = e
+    setFileName(() => file.name)
     const data = { filePath: file.path }
     window.electronAPI.columnReadFile(data)
   }
@@ -42,7 +44,7 @@ function Column() {
 
   return (
     <section id="column">
-      <input ref={fileInputRef} type="file" onChange={handleInputChange} accept=".xlsx" />
+      <Dropzone classArr="dropZone" fileName={fileName} accept=".xlsx" handleInputChange={handleInputChange} />
       <button onClick={handleClear}>清除檔案</button>
       <label className="fileName">檔案:</label>
       <ul>

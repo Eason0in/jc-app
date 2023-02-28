@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import './index.scss'
+import Dropzone from '../Dropzone'
 
 function Beam() {
   const [beamMaterialFileA, setBeamMaterialFileA] = useState('')
@@ -11,7 +12,7 @@ function Beam() {
   const [beamTidyBySheetNameFile, setBeamTidyBySheetNameFile] = useState('')
   const [beamTidyBySheetNameFileA, setBeamTidyBySheetNameFileA] = useState('')
   const [selectBeamRange, setSelectBeamRange] = useState(10)
-  const fileInputRef = useRef('')
+  const [fileName, setFileName] = useState('')
   const [isNeedTidy, setIsNeedTidy] = useState(false)
 
   const handleClear = () => {
@@ -23,16 +24,21 @@ function Beam() {
     setBeamConstructionFileA('')
     setBeamTidyBySheetNameFile('')
     setBeamTidyBySheetNameFileA('')
-    fileInputRef.current.value = ''
+    setFileName('')
   }
 
   const handleInputChange = (e) => {
-    const [file] = e.target.files
+    const [file] = e
+    setFileName(() => file.name)
     const data = { filePath: file.path, range: selectBeamRange, isNeedTidy }
     window.electronAPI.beamReadFile(data)
   }
   const handleSelectChange = (e) => {
     setSelectBeamRange(e.target.value)
+  }
+
+  const handleNeedTidy = () => {
+    setIsNeedTidy(!isNeedTidy)
   }
 
   window.electronAPI.sendBeamMaterialFile((event, content) => {
@@ -74,7 +80,7 @@ function Beam() {
     <section id="beam">
       <div className="needTidy">
         <label htmlFor="isNeedTidy">是否需要歸整(CC例外)</label>
-        <input id="isNeedTidy" type="checkbox" value={isNeedTidy} onClick={() => setIsNeedTidy(!isNeedTidy)} />
+        <input id="isNeedTidy" type="checkbox" value={isNeedTidy} onClick={handleNeedTidy} />
       </div>
 
       <div className="range">
@@ -90,7 +96,7 @@ function Beam() {
 
       <button onClick={handleClear}>清除檔案</button>
 
-      <input ref={fileInputRef} type="file" onChange={handleInputChange} accept=".xlsx" />
+      <Dropzone classArr="dropZone" fileName={fileName} accept=".xlsx" handleInputChange={handleInputChange} />
 
       <label className="fileName">檔案:</label>
       <ul>

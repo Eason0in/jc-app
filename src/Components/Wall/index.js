@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import './index.scss'
+import Dropzone from '../Dropzone'
 
 function Wall() {
   const [wallMaterialFileA, setWallMaterialFileA] = useState('')
@@ -7,24 +8,29 @@ function Wall() {
   const [wallTidyFile, setWallTidyFile] = useState('')
   const [wallTidyFileA, setWallTidyFileA] = useState('')
   const [selectWallRange, setSelectWallRange] = useState(10)
+  const [fileName, setFileName] = useState('')
   const [isNeedTidy, setIsNeedTidy] = useState(false)
-  const fileInputRef = useRef('')
 
   const handleClear = () => {
     setWallMaterialFile('')
     setWallMaterialFileA('')
     setWallTidyFile('')
     setWallTidyFileA('')
-    fileInputRef.current.value = ''
+    setFileName('')
   }
 
   const handleInputChange = (e) => {
-    const [file] = e.target.files
+    const [file] = e
+    setFileName(() => file.name)
     const data = { filePath: file.path, range: selectWallRange, isNeedTidy }
     window.electronAPI.wallReadFile(data)
   }
   const handleSelectChange = (e) => {
     setSelectWallRange(e.target.value)
+  }
+
+  const handleNeedTidy = () => {
+    setIsNeedTidy(!isNeedTidy)
   }
 
   window.electronAPI.sendWallMaterialFile((event, content) => {
@@ -49,7 +55,7 @@ function Wall() {
     <section id="wall">
       <div className="needTidy">
         <label htmlFor="isNeedTidy">是否需要歸整</label>
-        <input id="isNeedTidy" type="checkbox" value={isNeedTidy} onClick={() => setIsNeedTidy(!isNeedTidy)} />
+        <input id="isNeedTidy" type="checkbox" value={isNeedTidy} onClick={handleNeedTidy} />
       </div>
 
       <div className="range">
@@ -65,7 +71,7 @@ function Wall() {
 
       <button onClick={handleClear}>清除檔案</button>
 
-      <input ref={fileInputRef} type="file" onChange={handleInputChange} accept=".xlsx" />
+      <Dropzone classArr="dropZone" fileName={fileName} accept=".xlsx" handleInputChange={handleInputChange} />
 
       <label className="fileName">檔案:</label>
       <ul>

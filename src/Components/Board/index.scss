@@ -25,7 +25,7 @@ section#board {
   button {
     grid-area: clear;
   }
-  input {
+  .dropZone {
     grid-area: read;
     font-size: 16px;
   }
