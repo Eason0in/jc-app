@@ -1,0 +1,15 @@
+@import '../../style/variable.scss';
+
+.drop {
+  display: grid;
+  row-gap: 10px;
+}
+.dropzone {
+  text-align: center;
+  padding: 20px;
+  border: 3px $sub-blue dashed;
+  border-radius: 10px;
+  p {
+    margin-bottom: 10px;
+  }
+}
