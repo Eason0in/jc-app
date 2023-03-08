@@ -338,11 +338,12 @@ module.exports = async (e, data) => {
         const tidiedArr = Object.values(arrangeObj).map((subArr) => {
           let currentMax = Math.ceil(subArr[0].lenB / 10) * 10
           let nextMax = currentMax - range
+          const isDontTidyRegex = RegExp(/\[[a-zA-Z]{1,2}\]/)
 
           for (let i = 0; i < subArr.length; i++) {
             while (subArr[i].lenB <= currentMax) {
               // CC 跳過不歸整
-              if (subArr[i].tNo === 'CC') {
+              if (subArr[i].tNo === 'CC' || isDontTidyRegex.test(subArr[i].tNo)) {
                 subArr[i].newLenB = subArr[i].lenB
                 break
               }
