@@ -75,7 +75,14 @@ module.exports = async (e, data) => {
         const row = ws.getRow(i)
         row.eachCell({ includeEmpty: false }, function (cell, colNumber) {
           const resultOrValue = cell.result || cell.value // 代號可能是直接英文或組成的
-          const tNo = resultOrValue ? typeof resultOrValue === 'string' && resultOrValue.toUpperCase() : undefined
+          let tNo = resultOrValue ? typeof resultOrValue === 'string' && resultOrValue.toUpperCase() : undefined
+
+          let isNotTidy = false
+          const notTidyRegex = RegExp(/\[[a-zA-Z]{1,2}\]/)
+          if (tNo && notTidyRegex.test(tNo)) {
+            isNotTidy = notTidyRegex.test(tNo)
+            tNo = tNo.replaceAll(/\[|\]/g, '')
+          }
           const condF = tNo && numMap.has(tNo)
 
           const lenB = row.getCell(colNumber + 1).result || row.getCell(colNumber + 1).value
@@ -105,6 +112,7 @@ module.exports = async (e, data) => {
               lenA: '',
               sheetName,
               sheetAddress,
+              isNotTidy,
             }
 
             // #10_A_750_Y02_P43
@@ -338,12 +346,11 @@ module.exports = async (e, data) => {
         const tidiedArr = Object.values(arrangeObj).map((subArr) => {
           let currentMax = Math.ceil(subArr[0].lenB / 10) * 10
           let nextMax = currentMax - range
-          const isDontTidyRegex = RegExp(/\[[a-zA-Z]{1,2}\]/)
 
           for (let i = 0; i < subArr.length; i++) {
             while (subArr[i].lenB <= currentMax) {
               // CC 跳過不歸整
-              if (subArr[i].tNo === 'CC' || isDontTidyRegex.test(subArr[i].tNo)) {
+              if (subArr[i].tNo === 'CC' || subArr[i].isNotTidy) {
                 subArr[i].newLenB = subArr[i].lenB
                 break
               }
