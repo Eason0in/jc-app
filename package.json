@@ -1,10 +1,10 @@
 {
-  "name": "calculate-building",
+  "name": "jc-app",
   "version": "2.2.1",
   "main": "./public/electron.js",
   "author": "Eason",
   "license": "MIT",
-  "description": "calculate building",
+  "description": "jc-app",
   "homepage": "./",
   "scripts": {
     "build": "react-scripts build",
@@ -46,7 +46,7 @@
         {
           "provider": "github",
           "owner": "Eason0in",
-          "repo": "CalculateBuilding"
+          "repo": "jc-app"
         }
       ]
     }
