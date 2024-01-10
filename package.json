@@ -1,6 +1,6 @@
 {
   "name": "calculate-building",
-  "version": "2.1.1",
+  "version": "2.2.1",
   "main": "./public/electron.js",
   "author": "Eason",
   "license": "MIT",
@@ -11,13 +11,14 @@
     "pack": "yarn build && electron-builder --dir -w -c.extraMetadata.main=build/electron.js",
     "dist": "yarn build && electron-builder  -w -c.extraMetadata.main=build/electron.js",
     "publish": "yarn build && electron-builder  -w -c.extraMetadata.main=build/electron.js --win -p always",
-    "start": "concurrently -k \"cross-env BROWSER=none  react-scripts start\"  \"wait-on tcp:3000 && electron .\""
+    "electron": "electron .",
+    "start": "concurrently -k \"cross-env BROWSER=none react-scripts start\" \"wait-on http://127.0.0.1:3000 && yarn run electron\""
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
     "electron": "^19.0.4",
     "electron-builder": "^23.0.3",
-    "wait-on": "^6.0.1"
+    "wait-on": "7.2.0"
   },
   "dependencies": {
     "concurrently": "^7.3.0",

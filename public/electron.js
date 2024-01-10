@@ -89,7 +89,6 @@ app.whenReady().then(() => {
   //   dialog.showErrorBox('軟體已過期', '軟體已過期，請洽管理員')
   //   app.quit()
   // }
-
   createWindow()
 })
 

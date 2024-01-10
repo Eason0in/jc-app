@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import './index.scss'
 import Dropzone from '../Dropzone'
+import { SelectRange } from '../../constants'
 
 function Wall() {
   const [wallMaterialFileA, setWallMaterialFileA] = useState('')
   const [wallMaterialFile, setWallMaterialFile] = useState('')
   const [wallTidyFile, setWallTidyFile] = useState('')
   const [wallTidyFileA, setWallTidyFileA] = useState('')
-  const [selectWallRange, setSelectWallRange] = useState(10)
+  const [selectWallRange, setSelectWallRange] = useState(SelectRange[0])
   const [fileName, setFileName] = useState('')
   const [isNeedTidy, setIsNeedTidy] = useState(false)
 
@@ -61,11 +62,11 @@ function Wall() {
       <div className="range">
         <label htmlFor="wallRange">歸整間距：</label>
         <select name="wallRange" id="wallRange" value={selectWallRange} onChange={handleSelectChange}>
-          <option value="10">10</option>
-          <option value="20">20</option>
-          <option value="30">30</option>
-          <option value="40">40</option>
-          <option value="50">50</option>
+          {SelectRange.map((range) => (
+            <option key={range} value={range}>
+              {range}
+            </option>
+          ))}
         </select>
       </div>
 

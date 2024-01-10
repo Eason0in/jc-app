@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './index.scss'
 import Dropzone from '../Dropzone'
+import { SelectRange } from '../../constants'
 
 function Beam() {
   const [beamMaterialFileA, setBeamMaterialFileA] = useState('')
@@ -11,7 +12,7 @@ function Beam() {
   const [beamConstructionFileA, setBeamConstructionFileA] = useState('')
   const [beamTidyBySheetNameFile, setBeamTidyBySheetNameFile] = useState('')
   const [beamTidyBySheetNameFileA, setBeamTidyBySheetNameFileA] = useState('')
-  const [selectBeamRange, setSelectBeamRange] = useState(10)
+  const [selectBeamRange, setSelectBeamRange] = useState(SelectRange[0])
   const [fileName, setFileName] = useState('')
   const [isNeedTidy, setIsNeedTidy] = useState(false)
 
@@ -86,11 +87,11 @@ function Beam() {
       <div className="range">
         <label htmlFor="beamRange">歸整間距(CC例外)：</label>
         <select name="beamRange" id="beamRange" value={selectBeamRange} onChange={handleSelectChange}>
-          <option value="10">10</option>
-          <option value="20">20</option>
-          <option value="30">30</option>
-          <option value="40">40</option>
-          <option value="50">50</option>
+          {SelectRange.map((range) => (
+            <option key={range} value={range}>
+              {range}
+            </option>
+          ))}
         </select>
       </div>
 

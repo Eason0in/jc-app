@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import './index.scss'
 import Dropzone from '../Dropzone'
+import { SelectRange } from '../../constants'
 
 function Board() {
   const [boardMaterialFileA, setBoardMaterialFileA] = useState('')
   const [boardMaterialFile, setBoardMaterialFile] = useState('')
   const [boardTidyFile, setBoardTidyFile] = useState('')
   const [boardTidyFileA, setBoardTidyFileA] = useState('')
-  const [selectBoardRange, setSelectBoardRange] = useState(10)
+  const [selectBoardRange, setSelectBoardRange] = useState(SelectRange[0])
   const [fileName, setFileName] = useState('')
   const [isNeedTidy, setIsNeedTidy] = useState(false)
   // const fileInputRef = useRef('')
@@ -62,11 +63,11 @@ function Board() {
       <div className="range">
         <label htmlFor="boardRange">歸整間距：</label>
         <select name="boardRange" id="boardRange" value={selectBoardRange} onChange={handleSelectChange}>
-          <option value="10">10</option>
-          <option value="20">20</option>
-          <option value="30">30</option>
-          <option value="40">40</option>
-          <option value="50">50</option>
+          {SelectRange.map((range) => (
+            <option key={range} value={range}>
+              {range}
+            </option>
+          ))}
         </select>
       </div>
 
