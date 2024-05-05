@@ -2,10 +2,11 @@ section#beam {
   display: grid;
   font-size: 16px;
   grid-template-areas:
-    'needTidy range clear'
-    'read read read'
-    'name name name'
-    'files files files';
+    "needTidy range clear"
+    "ac ac ac"
+    "read read read"
+    "name name name"
+    "files files files";
   row-gap: 20px;
   align-items: center;
   .needTidy {
@@ -15,6 +16,7 @@ section#beam {
       height: 14px;
     }
   }
+
   .range {
     grid-area: range;
     select {
@@ -22,6 +24,20 @@ section#beam {
       font-size: 16px;
     }
   }
+
+  .acTidy {
+    grid-area: ac;
+    label {
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .acNeedTidy {
+      display: flex;
+      column-gap: 10px;
+    }
+  }
+
   button {
     grid-area: clear;
   }

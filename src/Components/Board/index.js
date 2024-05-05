@@ -11,14 +11,12 @@ function Board() {
   const [selectBoardRange, setSelectBoardRange] = useState(SelectRange[0])
   const [fileName, setFileName] = useState('')
   const [isNeedTidy, setIsNeedTidy] = useState(false)
-  // const fileInputRef = useRef('')
 
   const handleClear = () => {
     setBoardMaterialFile('')
     setBoardMaterialFileA('')
     setBoardTidyFile('')
     setBoardTidyFileA('')
-    // fileInputRef.current.value = ''
   }
 
   const handleInputChange = (e) => {
@@ -34,6 +32,7 @@ function Board() {
   const handleNeedTidy = () => {
     setIsNeedTidy(!isNeedTidy)
   }
+
 
   window.electronAPI.sendBoardMaterialFile((event, content) => {
     const blobData = new Blob([content], {
@@ -71,6 +70,7 @@ function Board() {
         </select>
       </div>
 
+   
       <button onClick={handleClear}>清除檔案</button>
 
       <Dropzone classArr="dropZone" fileName={fileName} accept=".xlsx" handleInputChange={handleInputChange} />
