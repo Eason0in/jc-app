@@ -7,7 +7,7 @@ import TidyItem from "../TidyItem";
 const initACTidyObj = NumList.reduce((obj, num) => {
   return {
     ...obj,
-    [num]: {
+    [`#${num}`]: {
       isNeedTidy: false,
       selectBeamRange: BeamSelectRange[0],
     },
@@ -43,7 +43,12 @@ function Beam() {
   const handleInputChange = (e) => {
     const [file] = e;
     setFileName(() => file.name);
-    const data = { filePath: file.path, range: selectBeamRange, isNeedTidy };
+    const data = {
+      filePath: file.path,
+      range: selectBeamRange,
+      isNeedTidy,
+      acTidyObj,
+    };
     window.electronAPI.beamReadFile(data);
   };
   const handleSelectChange = (e) => {
@@ -58,8 +63,8 @@ function Beam() {
     setACTidyObj((last) => {
       return {
         ...last,
-        [num]: {
-          ...last[num],
+        [`#${num}`]: {
+          ...last[`#${num}`],
           [type]: value,
         },
       };
@@ -138,7 +143,7 @@ function Beam() {
             <TidyItem
               key={index}
               num={item}
-              {...acTidyObj[item]}
+              {...acTidyObj[`#${item}`]}
               handleNeedTidy={handleACNeedTidy}
             />
           ))}
